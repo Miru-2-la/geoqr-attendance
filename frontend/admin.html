@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard - GeoQR Attendance</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+
+    <!-- QRCode.js -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    </script>
+
+    <!-- Chart.js -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+
+        <div class="nav-brand">
+
+            <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+            </svg>
+
+            <span>GeoQR Attend</span>
+
+        </div>
+
+
+        <div class="nav-links">
+
+            <a
+                href="#"
+                class="nav-link active"
+                data-tab="dashboard"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="#"
+                class="nav-link"
+                data-tab="events"
+            >
+                Events
+            </a>
+
+            <a
+                href="#"
+                class="nav-link"
+                data-tab="analytics"
+            >
+                Analytics
+            </a>
+
+            <a
+                href="#"
+                class="nav-link"
+                data-tab="reports"
+            >
+                Reports
+            </a>
+
+        </div>
+
+
+        <div class="nav-user">
+
+            <span id="userName">Admin</span>
+
+            <button
+                class="btn btn-outline btn-sm"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+
+        <!-- ==========================================
+             DASHBOARD TAB
+             ========================================== -->
+
+        <div
+            id="dashboard-tab"
+            class="tab-content active"
+        >
+
+            <div class="stats-grid">
+
+
+                <!-- Total Students -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <h3 id="totalStudents">
+                            0
+                        </h3>
+
+                        <p>
+                            Total Students
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Present Today -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h3 id="presentToday">
+                            0
+                        </h3>
+
+                        <p>
+                            Present Today
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Attendance Rate -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        %
+                    </div>
+
+                    <div>
+
+                        <h3 id="attendanceRate">
+                            0%
+                        </h3>
+
+                        <p>
+                            Attendance Rate
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Proxy Attempts -->
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        !
+                    </div>
+
+                    <div>
+
+                        <h3 id="proxyAttempts">
+                            0
+                        </h3>
+
+                        <p>
+                            Proxy Attempts
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Recent Attendance -->
+
+            <div class="card mt-lg">
+
+                <div class="card-header">
+
+                    <h2>
+                        Recent Attendance
+                    </h2>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table class="table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Student</th>
+                                <th>Event</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="recentAttendance">
+
+                            <tr>
+
+                                <td colspan="4">
+                                    No attendance records yet.
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==========================================
+             EVENTS TAB
+             ========================================== -->
+
+        <div
+            id="events-tab"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Create Event
+                    </h2>
+
+                </div>
+
+
+                <form id="eventForm">
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="eventTitle"
+                        >
+                            Event Title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="eventTitle"
+                            class="form-control"
+                            placeholder="Enter event title"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="eventDescription"
+                        >
+                            Description
+                        </label>
+
+                        <textarea
+                            id="eventDescription"
+                            class="form-control"
+                            placeholder="Enter description"
+                            rows="3"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="eventDate"
+                        >
+                            Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="eventDate"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="startTime"
+                        >
+                            Start Time
+                        </label>
+
+                        <input
+                            type="time"
+                            id="startTime"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="endTime"
+                        >
+                            End Time
+                        </label>
+
+                        <input
+                            type="time"
+                            id="endTime"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="latitude"
+                        >
+                            Latitude
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="latitude"
+                            class="form-control"
+                            value="12.9716"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="longitude"
+                        >
+                            Longitude
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="longitude"
+                            class="form-control"
+                            value="77.5946"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label
+                            class="form-label"
+                            for="radiusMeters"
+                        >
+                            Radius (meters)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="radiusMeters"
+                            class="form-control"
+                            value="50"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Create Event
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- QR will be displayed here later -->
+
+            <div
+                id="qrContainer"
+                class="card mt-lg"
+            >
+
+                <div class="card-header">
+
+                    <h2>
+                        Event QR Code
+                    </h2>
+
+                </div>
+
+                <div
+                    id="qrcode"
+                    class="text-center"
+                ></div>
+
+            </div>
+            
+          <!-- QR Modal -->
+<div id="qrModal" style="display: none;">
+
+    <div class="qr-box">
+
+        <h2>Attendance QR Code</h2>
+
+        <div id="qrModalCode"></div>
+
+        <button
+            class="btn btn-primary"
+            onclick="closeQR()"
+        >
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+
+        </div>
+
+
+
+        <!-- ==========================================
+             ANALYTICS TAB
+             ========================================== -->
+
+        <div
+            id="analytics-tab"
+            class="tab-content"
+        >
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div>
+
+                        <h3 id="avgAttendance">
+                            0%
+                        </h3>
+
+                        <p>
+                            Average Attendance
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div>
+
+                        <h3 id="atRiskCount">
+                            0
+                        </h3>
+
+                        <p>
+                            At-Risk Students
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Trend Chart -->
+
+            <div class="card mt-lg">
+
+                <div class="card-header">
+
+                    <h2>
+                        Attendance Trend (Last 7 Days)
+                    </h2>
+
+                </div>
+
+                <canvas
+                    id="trendChart"
+                    height="100"
+                ></canvas>
+
+            </div>
+
+
+            <!-- At-Risk Students -->
+
+            <div class="card mt-lg">
+
+                <div class="card-header">
+
+                    <h2>
+                        At-Risk Students (Below 75%)
+                    </h2>
+
+                </div>
+
+
+                <table
+                    class="table"
+                    id="atRiskTable"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Student Name
+                            </th>
+
+                            <th>
+                                Roll Number
+                            </th>
+
+                            <th>
+                                Events Attended
+                            </th>
+
+                            <th>
+                                Attendance %
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==========================================
+             REPORTS TAB
+             ========================================== -->
+
+        <div
+            id="reports-tab"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Attendance Reports
+                    </h2>
+
+                </div>
+
+                <p class="text-muted">
+                    Download attendance reports.
+                </p>
+
+                <div
+                    style="
+                        display:flex;
+                        gap:16px;
+                        margin-top:24px;
+                    "
+                >
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="downloadCSV()"
+                    >
+                        Download CSV
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="downloadPDF()"
+                    >
+                        Download PDF
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/qr-generator.js"></script>
+    <script src="js/admin.js"></script>
+
+</body>
+
+</html>

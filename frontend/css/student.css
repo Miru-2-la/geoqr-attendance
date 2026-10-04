@@ -1,0 +1,113 @@
+/* ============================================
+   STUDENT DASHBOARD STYLES
+   ============================================ */
+
+.student-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+.student-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.student-header h1 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.scanner-card {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.qr-reader {
+    width: 100%;
+    max-width: 500px;
+    min-height: 300px;
+    margin: 0 auto;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.location-demo {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: var(--radius-md);
+}
+
+.location-demo label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.location-demo input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+.scan-result {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    display: none;
+}
+
+.scan-result.success {
+    display: block;
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.scan-result.error {
+    display: block;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.info-item {
+    padding: var(--spacing-md);
+    background-color: var(--bg);
+    border-radius: var(--radius-md);
+}
+
+.info-item span {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+}
+
+.info-item strong {
+    word-break: break-word;
+}
+
+.text-center {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .student-main {
+        padding: var(--spacing-md);
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scanner-card {
+        width: 100%;
+    }
+}
