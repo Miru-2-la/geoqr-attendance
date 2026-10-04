@@ -1,1 +1,58 @@
-# geoqr-attendance
+\# GeoQR Attend - Secure Location-Based Attendance Management System
+
+
+
+A full-stack attendance system using QR codes, GPS geo-fencing, and device fingerprinting for proxy detection.
+
+
+
+\---
+
+
+
+\## Team
+
+
+
+\- \*\*Mirudhula (Backend)\*\* - Spring Boot, MySQL, OOP, Analytics
+
+\- \*\*Grithey (Frontend)\*\* - HTML/CSS/JS, QR, Dashboard
+
+\- \*\*Eshanika (Logic \& Documentation)\*\* - Haversine, Exceptions, UML, Testing
+
+
+
+\---
+
+
+
+\## Prerequisites
+
+
+
+\- \*\*Java 17\*\* (NOT Java 21 or 25 - Lombok will crash)
+
+\- Maven 3.8+
+
+\- MySQL 8.0+
+
+\- Node.js (optional, for frontend)
+
+
+
+\---
+
+
+
+\## Backend Setup (Mirudhula's part)
+
+
+
+\### 1. Clone the repository
+
+```bash
+
+git clone https://github.com/Miru-2-la/geoqr-attendance.git
+
+cd geoqr-attendance/backend
+
