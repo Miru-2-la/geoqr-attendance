@@ -9,25 +9,26 @@ import java.util.List;
 
 @Service
 public class ReportService {
+    
     private final ReportGenerator csvReportGenerator;
     private final ReportGenerator pdfReportGenerator;
-
+    
     public ReportService(
             @Qualifier("csvReportGenerator") ReportGenerator csvReportGenerator,
             @Qualifier("pdfReportGenerator") ReportGenerator pdfReportGenerator) {
         this.csvReportGenerator = csvReportGenerator;
         this.pdfReportGenerator = pdfReportGenerator;
     }
-
+    
     public String generateReport(List<Attendance> records, String format) {
         ReportGenerator generator = "pdf".equalsIgnoreCase(format) ? pdfReportGenerator : csvReportGenerator;
         return generator.generateReport(records);
     }
-
+    
     public String getFileExtension(String format) {
         return "pdf".equalsIgnoreCase(format) ? pdfReportGenerator.getFileExtension() : csvReportGenerator.getFileExtension();
     }
-
+    
     public String getContentType(String format) {
         return "pdf".equalsIgnoreCase(format) ? pdfReportGenerator.getContentType() : csvReportGenerator.getContentType();
     }
