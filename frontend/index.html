@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Login - GeoQR Attendance</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-card">
+
+            <!-- Login Header -->
+            <div class="login-header">
+
+                <div class="logo">
+                    <svg
+                        width="40"
+                        height="40"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                    </svg>
+                </div>
+
+                <h1>GeoQR Attend</h1>
+
+                <p class="text-muted">
+                    QR-Based Geo-Tagged Attendance
+                </p>
+
+            </div>
+
+            <!-- Login Form -->
+            <form
+                id="loginForm"
+                class="login-form"
+            >
+
+                <div class="form-group">
+
+                    <label
+                        for="email"
+                        class="form-label"
+                    >
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        class="form-control"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label
+                        for="password"
+                        class="form-label"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-control"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label
+                        for="role"
+                        class="form-label"
+                    >
+                        Role
+                    </label>
+
+                    <select
+                        id="role"
+                        class="form-control"
+                        required
+                    >
+                        <option value="STUDENT">
+                            Student
+                        </option>
+
+                        <option value="ADMIN">
+                            Admin
+                        </option>
+                    </select>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    style="width: 100%;"
+                >
+                    Login
+                </button>
+
+            </form>
+
+            <!-- Message Area -->
+            <div
+                id="loginMessage"
+                class="text-center"
+                style="margin-top: 16px;"
+            ></div>
+
+            <!-- Demo Credentials -->
+            <div
+                class="demo-credentials"
+                style="margin-top: 24px;"
+            >
+
+                <p class="text-muted text-center">
+                    Demo Credentials
+                </p>
+
+                <div class="demo-grid">
+
+                    <div
+                        class="demo-item"
+                        onclick="fillAdminCredentials()"
+                    >
+                        <strong>Admin</strong>
+                        <span>admin@geoqr.com</span>
+                    </div>
+
+                    <div
+                        class="demo-item"
+                        onclick="fillStudentCredentials()"
+                    >
+                        <strong>Student</strong>
+                        <span>student@geoqr.com</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+
+</body>
+</html>

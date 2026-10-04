@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Dashboard - GeoQR Attendance</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/student.css">
+
+    <!-- Html5Qrcode -->
+    <script
+        src="https://unpkg.com/html5-qrcode"
+        type="text/javascript">
+    </script>
+
+</head>
+
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="nav-brand">
+
+            <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+
+                <rect
+                    x="3"
+                    y="3"
+                    width="7"
+                    height="7"
+                ></rect>
+
+                <rect
+                    x="14"
+                    y="3"
+                    width="7"
+                    height="7"
+                ></rect>
+
+                <rect
+                    x="3"
+                    y="14"
+                    width="7"
+                    height="7"
+                ></rect>
+
+                <rect
+                    x="14"
+                    y="14"
+                    width="7"
+                    height="7"
+                ></rect>
+
+            </svg>
+
+            <span>
+                GeoQR Attend
+            </span>
+
+        </div>
+
+
+        <div class="nav-user">
+
+            <span id="studentName">
+                Student
+            </span>
+
+            <button
+                class="btn btn-outline btn-sm"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Main Content -->
+
+    <main class="student-main">
+
+
+        <!-- Welcome -->
+
+        <section class="student-header">
+
+            <h1>
+                Student Dashboard
+            </h1>
+
+            <p class="text-muted">
+                Scan the event QR code to mark your attendance.
+            </p>
+
+        </section>
+
+
+        <!-- Scanner Card -->
+
+        <section class="card scanner-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Scan Attendance QR
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+
+                <!-- QR Reader -->
+
+                <div
+                    id="reader"
+                    class="qr-reader"
+                ></div>
+
+
+                <!-- Scanner Status -->
+
+                <p
+                    id="scannerStatus"
+                    class="text-muted text-center"
+                >
+                    Camera is ready to scan.
+                </p>
+
+
+                <!-- Location Simulation -->
+
+                <div class="location-demo">
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            id="simulateLocation"
+                        >
+
+                        Simulate Location (500m away) - For Demo
+
+                    </label>
+
+                </div>
+
+
+                <!-- Start Scanner -->
+
+                <button
+                    id="startScannerBtn"
+                    class="btn btn-primary"
+                    style="width: 100%; margin-top: 16px;"
+                >
+                    Start Scanner
+                </button>
+
+
+                <!-- Stop Scanner -->
+
+                <button
+                    id="stopScannerBtn"
+                    class="btn btn-danger"
+                    style="width: 100%; margin-top: 8px;"
+                    disabled
+                >
+                    Stop Scanner
+                </button>
+
+
+                <!-- Result Message -->
+
+                <div
+                    id="scanResult"
+                    class="scan-result"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Attendance Information -->
+
+        <section class="card mt-lg">
+
+            <div class="card-header">
+
+                <h2>
+                    Attendance Information
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="info-grid">
+
+                    <div class="info-item">
+
+                        <span class="text-muted">
+                            Student ID
+                        </span>
+
+                        <strong id="studentId">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span class="text-muted">
+                            Device ID
+                        </span>
+
+                        <strong id="deviceId">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/student.js"></script>
+
+</body>
+
+</html>
