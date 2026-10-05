@@ -69,14 +69,13 @@
 
 | Category | Total | Passed | Failed | Not run |
 |----------|:-----:|:------:|:------:|:-------:|
-| Authentication | 4 | | | |
-| Location | 3 | | | |
-| Proxy / duplicate | 3 | | | |
-| Invalid event | 1 | | | |
-| Analytics | 2 | | | |
-| Reports | 2 | | | |
-| **Total** | **15** | | | |
-
+| Authentication | 4 | 4 | 0 | 0 |
+| Location | 3 | 3 | 0 | 0 |
+| Proxy / duplicate | 3 | 3 | 0 | 0 |
+| Invalid event | 1 | 1 | 0 | 0 |
+| Analytics | 2 | 2 | 0 | 0 |
+| Reports | 2 | 2 | 0 | 0 |
+| **Total** | **15** | **15** | **0** | **0** |
 ---
 
 ## 📝 Notes and Observations
