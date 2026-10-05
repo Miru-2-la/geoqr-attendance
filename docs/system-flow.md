@@ -1,122 +1,131 @@
-# 🔄 System Flow: GeoQR Attend
+# System Flow
 
-This document explains how data moves through the system, step by step.
+### GeoQR Attend: QR-Based Geo-Tagged Attendance Management System
 
----
-
-## 👥 Who Uses the System
-
-| Role | What they do |
-|------|--------------|
-| 🧑‍🏫 **Admin** | Creates events, shows the QR code, views analytics, downloads reports |
-| 🎓 **Student** | Logs in, scans the QR code, gets a success or error result |
-| ⚙️ **Backend** | Validates every scan using 3 layers of security |
+This document describes how data moves through the system, from event creation to the stored attendance record.
 
 ---
 
-## 🧑‍🏫 Admin Flow
+## 1. System Actors
 
-```
-  Admin opens app
-        │
-        ▼
-  Logs in (ADMIN role)
-        │
-        ▼
-  Creates event (title, date, time, latitude, longitude, radius)
-        │
-        ▼
-  Backend saves event, returns event ID
-        │
-        ▼
-  Frontend generates QR code from the event ID
-        │
-        ▼
-  Admin shows QR code to students
-```
+| Actor | Responsibilities |
+|-------|------------------|
+| **Administrator** | Creates events, provides the event QR code, views analytics, downloads reports |
+| **Student** | Logs in, enters the event identifier, submits attendance, views the result |
+| **Backend** | Validates each request through a sequence of security checks and stores valid attendance |
 
 ---
 
-## 🎓 Student Flow
+## 2. Administrator Flow
 
 ```
-  Student opens app
-        │
-        ▼
-  Logs in (STUDENT role)
-        │
-        ▼
-  Opens scanner page, taps "Start Scanning"
-        │
-        ▼
-  Scans the QR code  ──►  extracts the event ID
-        │
-        ▼
-  Browser reads GPS location (latitude, longitude)
-        │
-        ▼
-  Browser gets its device ID from localStorage
-        │
-        ▼
-  Sends POST /api/scan to the backend
-        │
-        ▼
-  Shows ✅ success or ❌ error message
+  Administrator opens the JavaFX client
+                  |
+                  v
+  Logs in with the ADMIN role
+                  |
+                  v
+  Creates an event
+  (title, date, time, latitude, longitude, radius)
+                  |
+                  v
+  Backend stores the event and returns the event identifier
+                  |
+                  v
+  Client generates the QR code for the event
+                  |
+                  v
+  Administrator displays the QR code to students
 ```
 
 ---
 
-## ⚙️ Backend Flow (The 3 Security Layers)
+## 3. Student Flow
 
-When the backend receives a scan, it runs these checks **in this exact order**:
+```
+  Student opens the JavaFX client
+                  |
+                  v
+
+  Logs in with the STUDENT role
+                  |
+                  v
+
+  Enters the event identifier
+                  |
+                  v
+
+  Client collects the student's coordinates
+  and the device identifier
+                  |
+                  v
+
+  Client sends POST /api/scan to the backend
+                  |
+                  v
+
+  Client displays the success or error message
+```
+
+---
+
+## 4. Backend Validation Flow
+
+On receiving a scan request, the backend performs four checks in the following order.
 
 ```
   Receive POST /api/scan
-        │
-        ▼
+          |
+          v
+          
   CHECK 1: Does the event exist?
-        │── NO ──► ❌ ResourceNotFoundException  (NOT_FOUND)
-        ▼ YES
-  CHECK 2: Has this student already marked attendance?
-        │── YES ─► ❌ ProxyAttendanceException   (PROXY_ATTENDANCE)
-        ▼ NO
-  CHECK 3: Is the student within the allowed radius? (Haversine)
-        │── NO ──► ❌ LocationMismatchException  (LOCATION_MISMATCH)
-        ▼ YES
+          |-- No  --> ResourceNotFoundException   (NOT_FOUND)
+          v  Yes
+
+  CHECK 2: Has this student already marked attendance for the event?
+          |-- Yes --> ProxyAttendanceException    (PROXY_ATTENDANCE)
+          v  No
+
+  CHECK 3: Is the distance within the event radius? (Haversine formula)
+          |-- No  --> LocationMismatchException   (LOCATION_MISMATCH)
+          v  Yes
+
   CHECK 4: Has this device already been used for this event?
-        │── YES ─► ❌ ProxyAttendanceException   (PROXY_ATTENDANCE)
-        ▼ NO
-  ✅ Save attendance to the database
-        │
-        ▼
-  Return success response to the frontend
+          |-- Yes --> ProxyAttendanceException    (PROXY_ATTENDANCE)
+          v  No
+
+  Store the attendance record in the database
+          |
+          v
+          
+  Return the success response to the client
 ```
 
 ---
 
-## 🚨 Error Reference
+## 5. Error Reference
 
 | Situation | Exception | Error Code | HTTP Status |
-|-----------|-----------|------------|-------------|
-| Event ID does not exist | `ResourceNotFoundException` | `NOT_FOUND` | 404 |
-| Student too far away | `LocationMismatchException` | `LOCATION_MISMATCH` | 400 |
-| Same device, different student | `ProxyAttendanceException` | `PROXY_ATTENDANCE` | 400 |
-| Same student scans twice | `ProxyAttendanceException` | `PROXY_ATTENDANCE` | 400 |
-| Anything unexpected | `Exception` | `INTERNAL_ERROR` | 500 |
+|-----------|-----------|------------|:-----------:|
+| Event identifier does not exist | `ResourceNotFoundException` | `NOT_FOUND` | 404 |
+| Student is outside the permitted radius | `LocationMismatchException` | `LOCATION_MISMATCH` | 400 |
+| Same device used for a different student | `ProxyAttendanceException` | `PROXY_ATTENDANCE` | 400 |
+| Same student submits twice | `ProxyAttendanceException` | `PROXY_ATTENDANCE` | 400 |
+| Any unexpected failure | `Exception` | `INTERNAL_ERROR` | 500 |
 
-All errors come back in the same format:
+Every error is returned in the same format:
 
 ```json
 {
   "status": "ERROR",
-  "message": "Human-readable explanation",
+  "message": "Description of the problem",
   "errorCode": "LOCATION_MISMATCH"
 }
 ```
 
 ---
 
-## 📦 The Scan Request (Frontend ➜ Backend)
+## 6. Scan Request (Client to Backend)
 
 ```json
 {
@@ -124,23 +133,23 @@ All errors come back in the same format:
   "studentId": 2,
   "studentLat": 12.9716,
   "studentLong": 77.5946,
-  "deviceId": "dev-abc123xyz456"
+  "deviceId": "example-device-id"
 }
 ```
 
-| Field | Meaning |
-|-------|---------|
-| `eventId` | Read from the QR code |
-| `studentId` | From the logged-in user |
-| `studentLat`, `studentLong` | Student's GPS position |
-| `deviceId` | Random ID stored in the browser's localStorage |
+| Field | Description |
+|-------|-------------|
+| `eventId` | Identifier of the event, taken from the QR code or entered by the student |
+| `studentId` | Identifier of the logged-in student |
+| `studentLat`, `studentLong` | Coordinates submitted by the client |
+| `deviceId` | Identifier that distinguishes the device in use |
 
 ---
 
-## 🧩 System Layers
+## 7. System Layers
 
 | Layer | Technology | Responsibility |
 |-------|------------|----------------|
-| 🖥️ **Presentation** | HTML, CSS, JavaScript | Login, dashboard, scanner |
-| ⚙️ **Application** | Spring Boot REST API | Validation and business logic |
-| 🗄️ **Data** | MySQL | Stores users, events, attendance |
+| **Presentation** | JavaFX desktop application | Login, event management, attendance submission, dashboard |
+| **Application** | Spring Boot REST API | Validation and business logic |
+| **Data** | MySQL | Storage of users, events, and attendance records |
