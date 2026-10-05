@@ -1,39 +1,27 @@
-# GeoQR Attend: QR-Based Geo-Tagged Attendance Management System
+# GeoQR Attend
 
-## Project Title
-**GeoQR Attend: Secure Location-Based Attendance Management System**
+### QR-Based Geo-Tagged Attendance Management System
+
+**Course:** CSC, Second Year (4 Credits)
+
+---
 
 ## Abstract
-Traditional attendance systems rely on manual roll calls, signature
-sheets, or basic digital check-ins. These methods are time-consuming,
-prone to human error, and highly vulnerable to proxy attendance, where
-one student marks attendance on behalf of another.
 
-This project proposes a QR-Based Geo-Tagged Attendance Management
-System that combines three layers of verification to protect
-attendance integrity:
+Traditional attendance methods such as roll calls and signature sheets are time-consuming and vulnerable to proxy attendance, in which one student marks presence on behalf of another. This project presents GeoQR Attend, an attendance management system that verifies attendance through three independent layers. First, each event is assigned a unique identifier that is encoded in a QR code. Second, the Haversine formula computes the distance between the student's submitted coordinates and the event location, and attendance is rejected when this distance exceeds the permitted radius of 50 meters. Third, device fingerprinting binds a unique device identifier to each attendance record, so that the same device cannot be used for more than one student at the same event. The backend is implemented in Spring Boot with a MySQL database, and the client is a JavaFX desktop application. An administrator dashboard provides analytics, identification of students with attendance below 75%, and downloadable reports.
 
-1. **QR Code Verification:** Each event generates a unique QR code
-   containing the event identifier. Students must scan this code to
-   start the attendance process.
+**Keywords:** QR Code, Geo-fencing, Haversine Formula, Device Fingerprinting, Attendance Management, Spring Boot, JavaFX, MySQL
 
-2. **Geographical Verification:** Using the Haversine formula, the
-   system calculates the distance between the student's GPS
-   coordinates and the event location. If the distance exceeds the
-   event's allowed radius (default: 50 meters), attendance is rejected
-   with a `LocationMismatchException`.
+---
 
-3. **Device Fingerprinting:** Each browser generates a unique device
-   identifier stored in local storage. If the same device is used to
-   mark attendance for the same event under a different student
-   account, the system detects proxy attendance and throws a
-   `ProxyAttendanceException`.
+## System at a Glance
 
-The system is built with **Java Spring Boot** for the backend,
-**MySQL** for data storage, and **HTML/CSS/JavaScript** for the
-frontend. It includes an admin dashboard with attendance analytics,
-identification of at-risk students (below 75% attendance), an
-attendance trend chart, and downloadable CSV/PDF reports.
-
-**Keywords:** QR Code, Geo-fencing, Haversine Formula, Proxy Detection,
-Device Fingerprinting, Attendance Management, Spring Boot, MySQL
+| Aspect | Description |
+|--------|-------------|
+| **Verification Layer 1** | QR code identifies the attendance event |
+| **Verification Layer 2** | Haversine geo-fence with a default radius of 50 meters |
+| **Verification Layer 3** | Device fingerprinting detects proxy attendance |
+| **Backend** | Java Spring Boot REST API |
+| **Database** | MySQL |
+| **Client** | JavaFX desktop application |
+| **Analytics** | At-risk identification (below 75%), attendance trend, CSV and PDF reports |
