@@ -35,7 +35,7 @@ challenges as follows:
 | Challenge | Solution |
 |-----------|----------|
 | Proxy attendance | Device fingerprinting detects the same device being used for multiple students |
-| Time inefficiency | A QR scan completes attendance in seconds |
+| Time inefficiency | Entering the event identifier completes attendance in seconds |
 | No real-time visibility | Admin dashboard with live analytics and alerts |
 | No location verification | Haversine formula checks the student's GPS distance from the event |
 | Manual reports | Automated CSV/PDF report download |
@@ -45,7 +45,8 @@ challenges as follows:
 ### In Scope
 - User authentication (Admin and Student roles)
 - Event creation with location coordinates
-- QR code generation and scanning
+- QR code generation for each event
+- JavaFX desktop client for administrators and students
 - Geo-location verification (default 50 m radius)
 - Device-based proxy detection
 - Admin dashboard with attendance records
