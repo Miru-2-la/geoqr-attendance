@@ -11,12 +11,6 @@
 
 GeoQR Attend is an attendance management system that prevents proxy attendance by verifying every attendance request through three independent layers: the event QR code, the student's distance from the event location, and the device used to submit the request. An administrator dashboard provides analytics, identification of students with low attendance, and downloadable reports.
 
-| Role | Responsibility |
-|------|----------------|
-| Person A | Backend, database, object-oriented design, analytics, and reports |
-| Person B | JavaFX client, QR generation, and dashboard |
-| Person C | Security logic verification, exception testing, UML diagrams, test documentation, and final report |
-
 ---
 
 ## 2. Problem Statement
@@ -122,20 +116,7 @@ The JavaFX client has three main screens.
 
 ---
 
-## 10. Work Completed for Review 1
-
-| Item | Status |
-|------|--------|
-| Project title, abstract, and problem statement | Complete |
-| System flow document and diagram | Complete |
-| Backend architecture and database design | Complete |
-| Backend security checks, tested against seeded data | Complete |
-| Haversine verification | Complete |
-| Exception testing with recorded results | Complete |
-
----
-
-## 11. Plan for Review 2 and Review 3
+## 10. Plan for Review 2 and Review 3
 
 | Review | Planned Work |
 |--------|--------------|
@@ -144,7 +125,7 @@ The JavaFX client has three main screens.
 
 ---
 
-## 12. Limitations and Future Scope
+## 11. Limitations and Future Scope
 
 **Limitations.** GPS accuracy varies by device, the system requires a network connection, the device identifier can be reset by the user, and the accuracy of the location check depends on the client reporting the true position.
 
