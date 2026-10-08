@@ -5,6 +5,8 @@
     2) In MySQL Workbench run Documentation/test-data.sql (resets attendance and events 2+),
        and make sure students 3 and 4 exist (see test-cases.md, Section 3).
     3) Run:  powershell -ExecutionPolicy Bypass -File Documentation\run-tests.ps1
+
+
   Works on Windows PowerShell 5.1 and PowerShell 7+.
   Test order matters: attendance is stateful.
 #>
