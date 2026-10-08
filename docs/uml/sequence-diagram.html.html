@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQR Attend – Sequence Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8EFEB; --paper-2:#DDE7E2; --ink:#12303A; --ink-2:#47616B;
+    --call:#0B6E8A; --ret:#5E7079; --err:#C2255C; --ok:#1B8A57; --mark:#F4DB4A;
+    --line:rgba(18,48,58,.18);
+    --display:"Familjen Grotesk","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{
+    margin:0; color:var(--ink); font-family:var(--display); font-size:16px; line-height:1.5;
+    min-height:100vh;
+    background:
+      repeating-radial-gradient(circle at 92% 6%, transparent 0 26px, rgba(18,48,58,.055) 26px 27px),
+      repeating-radial-gradient(circle at 4% 96%, transparent 0 34px, rgba(18,48,58,.045) 34px 35px),
+      var(--paper);
+  }
+  header{padding:36px clamp(16px,4vw,56px) 8px; max-width:1400px; margin:0 auto}
+  h1{font-size:clamp(30px,4.6vw,52px); line-height:1.02; margin:0 0 10px; letter-spacing:-.02em; font-weight:700}
+  .lede{max-width:62ch; margin:0; color:var(--ink-2); font-size:18px}
+  main{max-width:1400px; margin:0 auto; padding:18px clamp(16px,4vw,56px) 56px;
+       display:grid; grid-template-columns:260px 1fr; gap:28px; align-items:start}
+  @media (max-width:900px){ main{grid-template-columns:1fr} }
+
+  /* outcome picker */
+  .rail{position:sticky; top:16px; display:flex; flex-direction:column; gap:10px}
+  @media (max-width:900px){ .rail{position:static; flex-direction:row; flex-wrap:wrap} }
+  .rail h2{font-size:15px; margin:0 0 2px; font-weight:700; color:var(--ink-2); width:100%}
+  .opt{
+    all:unset; cursor:pointer; display:block; width:100%; padding:12px 14px 12px 16px;
+    border:1.5px solid var(--line); border-left-width:6px; border-radius:6px; background:rgba(255,255,255,.55);
+    transition:background .15s, border-color .15s, transform .15s;
+  }
+  @media (max-width:900px){ .opt{width:auto; flex:1 1 200px} }
+  .opt:hover{background:#fff}
+  .opt:focus-visible{outline:3px solid var(--ink); outline-offset:2px}
+  .opt b{display:block; font-size:17px}
+  .opt span{font-family:var(--mono); font-size:12.5px; color:var(--ink-2)}
+  .opt[aria-pressed="true"]{background:#fff; border-color:var(--ink); transform:translateX(4px)}
+  @media (max-width:900px){ .opt[aria-pressed="true"]{transform:none} }
+  .opt[data-kind="ok"]{border-left-color:var(--ok)}
+  .opt[data-kind="err"]{border-left-color:var(--err)}
+
+  .order{margin-top:10px; padding:14px; border:1.5px dashed var(--line); border-radius:6px; font-size:14px; color:var(--ink-2); width:100%}
+  .order ol{margin:6px 0 0; padding-left:20px}
+  .order li{margin:2px 0}
+
+  /* stage */
+  .stage{background:rgba(255,255,255,.7); border:1.5px solid var(--line); border-radius:8px; padding:14px 14px 10px}
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px}
+  .btn{
+    all:unset; cursor:pointer; padding:7px 14px; border-radius:5px; background:var(--ink); color:#fff;
+    font-weight:700; font-size:14px;
+  }
+  .btn.ghost{background:transparent; color:var(--ink); border:1.5px solid var(--ink)}
+  .btn:focus-visible{outline:3px solid var(--call); outline-offset:2px}
+  .btn:active{transform:translateY(1px)}
+  .status{margin-left:auto; font-family:var(--mono); font-size:13px; color:var(--ink-2)}
+  .scroll{overflow-x:auto}
+  svg{display:block; width:100%; min-width:980px; height:auto}
+
+  /* svg bits */
+  .lane-box{fill:#fff; stroke:var(--ink); stroke-width:1.6}
+  .lane-name{font:700 13px var(--display); fill:var(--ink)}
+  .lane-sub{font:400 11px var(--mono); fill:var(--ink-2)}
+  .lifeline{stroke:var(--line); stroke-width:1.5; stroke-dasharray:5 6}
+  .msg{opacity:0; transition:opacity .35s}
+  .msg.on{opacity:1}
+  .msg .band{fill:var(--mark); opacity:0}
+  .msg.now .band{opacity:.55}
+  .msg text{font:500 12.5px var(--mono); paint-order:stroke; stroke:#fff; stroke-width:5px; stroke-linejoin:round}
+  .msg .n{font:700 11px var(--mono); fill:var(--ink-2); stroke:none}
+  .k-call line,.k-call path{stroke:var(--call)} .k-call text{fill:var(--call)}
+  .k-ret line,.k-ret path{stroke:var(--ret); stroke-dasharray:6 5} .k-ret text{fill:var(--ret)}
+  .k-err line,.k-err path{stroke:var(--err)} .k-err text{fill:var(--err)}
+  .k-ok line,.k-ok path{stroke:var(--ok)} .k-ok text{fill:var(--ok)}
+  .msg line,.msg path.self{stroke-width:2.2; fill:none}
+  .k-ret path.self{stroke-dasharray:none}
+
+  /* step log */
+  .log{margin:14px 2px 4px; padding:0; list-style:none; counter-reset:s; font-size:14.5px; max-width:96ch}
+  .log li{padding:7px 10px; border-left:4px solid transparent; border-radius:3px; color:var(--ink-2)}
+  .log li.seen{color:var(--ink)}
+  .log li.now{background:rgba(244,219,74,.45); border-left-color:var(--ink)}
+  .log code{font-family:var(--mono); font-size:12.5px; background:var(--paper-2); padding:1px 6px; border-radius:3px; color:var(--ink)}
+  .verdict{margin-top:6px; padding:12px 14px; border-radius:6px; font-weight:700; display:none}
+  .verdict.show{display:block}
+  .verdict.ok{background:rgba(27,138,87,.14); color:#0F5B38}
+  .verdict.err{background:rgba(194,37,92,.12); color:#8E1744}
+  @media (prefers-reduced-motion:reduce){ .msg{transition:none} .opt{transition:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>One scan, five checks, five possible outcomes</h1>
+  <p class="lede">When a student scans an event QR code, the backend validates it step by step and stops at the first check that fails. Pick an outcome to replay the exact path.</p>
+</header>
+
+<main>
+  <aside class="rail" aria-label="Outcome">
+    <h2>Outcome to replay</h2>
+    <button class="opt" data-sc="ok"    data-kind="ok"  aria-pressed="true"><b>Attendance marked</b><span>200 · SUCCESS</span></button>
+    <button class="opt" data-sc="far"   data-kind="err" aria-pressed="false"><b>Outside the geo-fence</b><span>400 · LOCATION_MISMATCH</span></button>
+    <button class="opt" data-sc="proxy" data-kind="err" aria-pressed="false"><b>Device already used</b><span>400 · PROXY_ATTENDANCE</span></button>
+    <button class="opt" data-sc="dup"   data-kind="err" aria-pressed="false"><b>Student already marked</b><span>400 · PROXY_ATTENDANCE</span></button>
+    <button class="opt" data-sc="nf"    data-kind="err" aria-pressed="false"><b>Unknown QR code</b><span>404 · NOT_FOUND</span></button>
+    <div class="order">
+      The service runs its checks in this order:
+      <ol>
+        <li>Event exists</li>
+        <li>Student has not marked yet</li>
+        <li>Distance within radius (Haversine)</li>
+        <li>Device not used by another student</li>
+        <li>Save as PRESENT</li>
+      </ol>
+    </div>
+  </aside>
+
+  <section class="stage" aria-label="Sequence diagram">
+    <div class="controls">
+      <button class="btn" id="play">Pause</button>
+      <button class="btn ghost" id="step">Next step</button>
+      <button class="btn ghost" id="all">Show all</button>
+      <button class="btn ghost" id="replay">Replay</button>
+      <span class="status" id="status"></span>
+    </div>
+    <div class="scroll"><svg id="svg" role="img" aria-label="Sequence diagram of the attendance scan"></svg></div>
+    <ol class="log" id="log"></ol>
+    <div class="verdict" id="verdict"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var LANES = [
+    {id:'stu', name:'Student',                sub:'browser user'},
+    {id:'ui',  name:'student.js',             sub:'scanner page'},
+    {id:'ctl', name:'AttendanceController',   sub:'POST /api/scan'},
+    {id:'svc', name:'AttendanceService',      sub:'processAttendance()'},
+    {id:'repo',name:'Repositories',           sub:'Spring Data JPA · MySQL'},
+    {id:'geo', name:'GeoUtils',               sub:'Haversine'},
+    {id:'exh', name:'ExceptionHandler',        sub:'GlobalExceptionHandler'}
+  ];
+  var ALL=['ok','far','proxy','dup','nf'], PASS=['ok','far','proxy','dup'];
+
+  // f=from, t=to, k=kind (call|ret|err|ok), s=scenarios, d=log text, c=code location
+  var M = [
+    {f:'stu',t:'ui', k:'call',l:'scan QR (eventId)',s:ALL,d:'The student scans the event QR code, which carries the eventId.',c:'student.js'},
+    {f:'ui',t:'ui',  k:'call',l:'read GPS + deviceId',s:ALL,d:'The page reads GPS from the browser and a device ID saved in localStorage.',c:'utils.js getDeviceId()'},
+    {f:'ui',t:'ctl', k:'call',l:'POST /api/scan',s:ALL,d:'Sends eventId, studentId, studentLat, studentLong and deviceId as JSON.',c:'student.js fetch()'},
+    {f:'ctl',t:'svc',k:'call',l:'processAttendance(req)',s:ALL,d:'The controller hands the request to the service.',c:'AttendanceController'},
+    {f:'svc',t:'repo',k:'call',l:'findById(eventId)',s:ALL,d:'Check 1: does this event exist?',c:'EventRepository'},
+
+    {f:'repo',t:'svc',k:'ret',l:'no event found',s:['nf'],d:'No row came back for that eventId.',c:'EventRepository'},
+    {f:'svc',t:'exh',k:'err',l:'throw ResourceNotFoundException',s:['nf'],d:'The service throws "Invalid QR code - Event not found".',c:'AttendanceService'},
+    {f:'exh',t:'ui', k:'err',l:'404  NOT_FOUND',s:['nf'],d:'The handler wraps it as {status: ERROR, errorCode: NOT_FOUND}.',c:'GlobalExceptionHandler'},
+    {f:'ui',t:'stu', k:'err',l:'"Invalid QR code"',s:['nf'],d:'The scanner page shows the error.',c:'student.js'},
+
+    {f:'repo',t:'svc',k:'ret',l:'Event (lat, lon, radius)',s:PASS,d:'The event and its geo-fence (centre and radius) are loaded.',c:'Event entity'},
+    {f:'svc',t:'repo',k:'call',l:'existsByEventIdAndStudentId',s:PASS,d:'Check 2: has this student already marked attendance for this event?',c:'AttendanceRepository'},
+    {f:'repo',t:'svc',k:'ret',l:'true',s:['dup'],d:'Yes, a row already exists.',c:'AttendanceRepository'},
+    {f:'svc',t:'exh',k:'err',l:'throw ProxyAttendanceException',s:['dup'],d:'The service throws "You have already marked attendance for this event".',c:'AttendanceService'},
+    {f:'exh',t:'ui', k:'err',l:'400  PROXY_ATTENDANCE',s:['dup'],d:'Returned as a 400 with errorCode PROXY_ATTENDANCE.',c:'GlobalExceptionHandler'},
+    {f:'ui',t:'stu', k:'err',l:'"Already marked"',s:['dup'],d:'The scanner page shows the error.',c:'student.js'},
+
+    {f:'repo',t:'svc',k:'ret',l:'false',s:['ok','far','proxy'],d:'No earlier attendance by this student.',c:'AttendanceRepository'},
+    {f:'svc',t:'geo',k:'call',l:'getDistance(event, student)',s:['ok','far','proxy'],d:'Check 3: Haversine distance between the event and the student, with Earth radius 6,371,000 m.',c:'util/GeoUtils.java'},
+    {f:'geo',t:'svc',k:'ret',l:'distance in metres',s:['ok','far','proxy'],d:'Returns the distance in metres.',c:'GeoUtils'},
+
+    {f:'svc',t:'exh',k:'err',l:'throw LocationMismatchException',s:['far'],d:'Distance is greater than radiusMeters, so the service throws "You are 500m away … Maximum allowed: 50m".',c:'AttendanceService'},
+    {f:'exh',t:'ui', k:'err',l:'400  LOCATION_MISMATCH',s:['far'],d:'Returned as a 400 with errorCode LOCATION_MISMATCH.',c:'GlobalExceptionHandler'},
+    {f:'ui',t:'stu', k:'err',l:'"You are 500 m away"',s:['far'],d:'The scanner page shows the distance and the allowed maximum.',c:'student.js'},
+
+    {f:'svc',t:'repo',k:'call',l:'existsByEventIdAndDeviceId',s:['ok','proxy'],d:'Check 4: has this device already marked someone for this event?',c:'AttendanceRepository'},
+    {f:'repo',t:'svc',k:'ret',l:'true',s:['proxy'],d:'Yes, the same device already marked another student.',c:'AttendanceRepository'},
+    {f:'svc',t:'exh',k:'err',l:'throw ProxyAttendanceException',s:['proxy'],d:'The service throws "Proxy detected! This device has already marked attendance…".',c:'AttendanceService'},
+    {f:'exh',t:'ui', k:'err',l:'400  PROXY_ATTENDANCE',s:['proxy'],d:'Returned as a 400 with errorCode PROXY_ATTENDANCE.',c:'GlobalExceptionHandler'},
+    {f:'ui',t:'stu', k:'err',l:'"Proxy detected"',s:['proxy'],d:'The scanner page shows the error.',c:'student.js'},
+
+    {f:'repo',t:'svc',k:'ret',l:'false',s:['ok'],d:'This device is new for the event.',c:'AttendanceRepository'},
+    {f:'svc',t:'repo',k:'call',l:'save(Attendance PRESENT)',s:['ok'],d:'Check 5 passed: the attendance row is saved with status PRESENT and the measured distance.',c:'AttendanceRepository'},
+    {f:'repo',t:'svc',k:'ret',l:'saved row (id)',s:['ok'],d:'MySQL returns the saved row.',c:'attendance table'},
+    {f:'svc',t:'ctl',k:'ret',l:'Attendance',s:['ok'],d:'The service returns the saved Attendance.',c:'AttendanceService'},
+    {f:'ctl',t:'ui', k:'ok', l:'200  SUCCESS',s:['ok'],d:'Wrapped as {status: SUCCESS, message: "Attendance marked successfully"}.',c:'ApiResponse.success()'},
+    {f:'ui',t:'stu', k:'ok', l:'✔ attendance marked',s:['ok'],d:'The scanner page confirms and the admin dashboard count goes up.',c:'student.js'}
+  ];
+
+  var VERDICT = {
+    ok:   ['ok','Attendance marked. All four checks passed and the row was saved as PRESENT.'],
+    far:  ['err','Rejected at check 3. The student is outside the event radius, so nothing is saved.'],
+    proxy:['err','Rejected at check 4. The same device was already used by another student, so nothing is saved.'],
+    dup:  ['err','Rejected at check 2. This student has already marked attendance for this event.'],
+    nf:   ['err','Rejected at check 1. The QR code points to an event that does not exist.']
+  };
+
+  var X0=80, DX=160, W=X0*2+DX*(LANES.length-1), Y0=128, DY=50, TOP=18, BOX_H=54;
+  var xOf={}; LANES.forEach(function(l,i){ xOf[l.id]=X0+i*DX; });
+
+  var svg=document.getElementById('svg'), logEl=document.getElementById('log'),
+      statusEl=document.getElementById('status'), verdictEl=document.getElementById('verdict'),
+      playBtn=document.getElementById('play');
+  var current='ok', list=[], shown=0, timer=null, playing=true;
+  var reduce=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NS='http://www.w3.org/2000/svg';
+
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  function build(){
+    list = M.filter(function(m){return m.s.indexOf(current)>-1;});
+    var H = Y0 + list.length*DY + 30;
+    var out = '<svg xmlns="'+NS+'" viewBox="0 0 '+W+' '+H+'">';
+    out += '<defs>';
+    [['call','#0B6E8A'],['ret','#5E7079'],['err','#C2255C'],['ok','#1B8A57']].forEach(function(p){
+      out += '<marker id="ah-'+p[0]+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="'+p[1]+'" stroke="none"/></marker>';
+    });
+    out += '</defs>';
+    LANES.forEach(function(l){
+      var x=xOf[l.id];
+      out += '<line class="lifeline" x1="'+x+'" y1="'+(TOP+BOX_H)+'" x2="'+x+'" y2="'+(H-10)+'"/>';
+      out += '<rect class="lane-box" x="'+(x-76)+'" y="'+TOP+'" width="152" height="'+BOX_H+'" rx="6"/>';
+      out += '<text class="lane-name" x="'+x+'" y="'+(TOP+23)+'" text-anchor="middle">'+esc(l.name)+'</text>';
+      out += '<text class="lane-sub" x="'+x+'" y="'+(TOP+41)+'" text-anchor="middle">'+esc(l.sub)+'</text>';
+    });
+    list.forEach(function(m,i){
+      var y=Y0+i*DY, x1=xOf[m.f], x2=xOf[m.t];
+      out += '<g class="msg k-'+m.k+'" data-i="'+i+'">';
+      out += '<rect class="band" x="10" y="'+(y-22)+'" width="'+(W-20)+'" height="38" rx="4"/>';
+      if(m.f===m.t){
+        out += '<path class="self" d="M'+x1+' '+(y-8)+' h38 v22 h-38" marker-end="url(#ah-'+m.k+')"/>';
+        out += '<text x="'+(x1+46)+'" y="'+(y+4)+'">'+esc(m.l)+'</text>';
+      } else {
+        var dir = x2>x1?1:-1;
+        out += '<line x1="'+x1+'" y1="'+y+'" x2="'+(x2-dir*2)+'" y2="'+y+'" marker-end="url(#ah-'+m.k+')"/>';
+        out += '<text x="'+((x1+x2)/2)+'" y="'+(y-8)+'" text-anchor="middle">'+esc(m.l)+'</text>';
+      }
+      out += '<text class="n" x="18" y="'+(y+4)+'">'+(i+1)+'</text>';
+      out += '</g>';
+    });
+    out += '</svg>';
+    svg.outerHTML = out;
+    svg = document.querySelector('.scroll svg');
+    svg.id='svg';
+    svg.setAttribute('role','img');
+    svg.setAttribute('aria-label','Sequence diagram of the attendance scan');
+
+    logEl.innerHTML = list.map(function(m,i){
+      var a=LANES.filter(function(l){return l.id===m.f;})[0].name, b=LANES.filter(function(l){return l.id===m.t;})[0].name;
+      return '<li data-i="'+i+'"><strong>'+(i+1)+'.</strong> '+esc(m.d)+' <code>'+esc(m.c)+'</code></li>';
+    }).join('');
+  }
+
+  function paint(){
+    var msgs=svg.querySelectorAll('.msg'), items=logEl.querySelectorAll('li');
+    for(var i=0;i<msgs.length;i++){
+      msgs[i].classList.toggle('on', i<shown);
+      msgs[i].classList.toggle('now', i===shown-1 && shown<list.length);
+      items[i].classList.toggle('seen', i<shown);
+      items[i].classList.toggle('now', i===shown-1);
+    }
+    statusEl.textContent = 'step '+Math.min(shown,list.length)+' of '+list.length;
+    var v=VERDICT[current];
+    if(shown>=list.length){ verdictEl.className='verdict show '+v[0]; verdictEl.textContent=v[1]; }
+    else { verdictEl.className='verdict'; }
+    if(shown>=list.length) stop();
+  }
+  function tick(){ if(shown<list.length){ shown++; paint(); } }
+  function start(){ stop(); if(reduce){ shown=list.length; paint(); return; } playing=true; playBtn.textContent='Pause'; timer=setInterval(tick,750); }
+  function stop(){ if(timer){clearInterval(timer); timer=null;} playing=false; playBtn.textContent = shown>=list.length ? 'Done' : 'Play'; }
+  function reset(){ shown=0; build(); paint(); start(); }
+
+  document.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.opt').forEach(function(o){o.setAttribute('aria-pressed','false');});
+      b.setAttribute('aria-pressed','true'); current=b.getAttribute('data-sc'); reset();
+    });
+  });
+  playBtn.addEventListener('click',function(){ if(shown>=list.length) return; if(playing) stop(); else start(); });
+  document.getElementById('step').addEventListener('click',function(){ stop(); tick(); if(shown<list.length) playBtn.textContent='Play'; });
+  document.getElementById('all').addEventListener('click',function(){ shown=list.length; paint(); });
+  document.getElementById('replay').addEventListener('click',reset);
+
+  reset();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQR Attend – Activity Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8EFEB; --paper-2:#DDE7E2; --ink:#12303A; --ink-2:#47616B;
+    --teal:#0B6E8A; --plum:#5B4B8A; --rose:#C2255C; --green:#1B8A57;
+    --line:rgba(18,48,58,.18);
+    --display:"Familjen Grotesk","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{margin:0; color:var(--ink); font-family:var(--display); font-size:16px; line-height:1.5; min-height:100vh;
+    background:
+      repeating-radial-gradient(circle at 92% 6%, transparent 0 26px, rgba(18,48,58,.055) 26px 27px),
+      repeating-radial-gradient(circle at 4% 96%, transparent 0 34px, rgba(18,48,58,.045) 34px 35px), var(--paper);}
+  header{padding:36px clamp(16px,4vw,56px) 8px; max-width:1400px; margin:0 auto}
+  h1{font-size:clamp(30px,4.6vw,52px); line-height:1.02; margin:0 0 10px; letter-spacing:-.02em; font-weight:700}
+  .lede{max-width:64ch; margin:0; color:var(--ink-2); font-size:18px}
+  main{max-width:1400px; margin:0 auto; padding:18px clamp(16px,4vw,56px) 56px}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+  .tab{all:unset; cursor:pointer; padding:9px 16px; border:1.5px solid var(--line); border-left-width:6px; border-radius:6px; background:rgba(255,255,255,.55); font-weight:700; font-size:15px}
+  .tab:hover{background:#fff}
+  .tab:focus-visible{outline:3px solid var(--ink); outline-offset:2px}
+  .tab[aria-pressed="true"]{background:#fff; border-color:var(--ink)}
+  .tab.ok{border-left-color:var(--green)} .tab.err{border-left-color:var(--rose)} .tab.all{border-left-color:var(--teal)}
+  .stage{background:rgba(255,255,255,.7); border:1.5px solid var(--line); border-radius:8px; padding:14px}
+  .verdict{margin:0 0 10px; padding:10px 14px; border-radius:6px; font-weight:700}
+  .verdict.ok{background:rgba(27,138,87,.14); color:#0F5B38}
+  .verdict.err{background:rgba(194,37,92,.12); color:#8E1744}
+  .verdict.all{background:rgba(11,110,138,.12); color:#0A566C}
+  .scroll{overflow-x:auto}
+  svg{display:block; width:100%; height:auto; min-width:900px}
+  .lane{fill:rgba(18,48,58,.035); stroke:var(--line)}
+  .lane.alt{fill:rgba(18,48,58,.07)}
+  .lname{font:700 15px var(--display); fill:var(--ink)}
+  .node text{font:500 12.5px var(--display); fill:var(--ink)}
+  .node .shape{fill:#fff; stroke:var(--ink); stroke-width:1.7}
+  .node.dec .shape{fill:#FFF8D6}
+  .node.err .shape{fill:#FBE4EC; stroke:var(--rose)}
+  .node.good .shape{fill:#DDF3E8; stroke:var(--green)}
+  .node.db .shape{fill:#E9E6F3; stroke:var(--plum)}
+  .node.dot .shape{fill:var(--ink)}
+  .node{transition:opacity .2s}
+  .edge{transition:opacity .2s}
+  .edge path{fill:none; stroke:var(--ink); stroke-width:1.8}
+  .edge.dashed path{stroke-dasharray:6 5; stroke:var(--plum)}
+  .edge text{font:700 12px var(--mono); fill:var(--ink); paint-order:stroke; stroke:#fff; stroke-width:5px; stroke-linejoin:round}
+  .fade .node, .fade .edge{opacity:.16}
+  .fade .node.on, .fade .edge.on{opacity:1}
+  .fade .edge.on path{stroke-width:3}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; font-size:14px; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .sw{width:18px; height:14px; border:1.7px solid var(--ink); border-radius:3px; display:inline-block; background:#fff}
+  .sw.d{background:#FFF8D6; transform:rotate(45deg) scale(.8)} .sw.e{background:#FBE4EC; border-color:var(--rose)} .sw.g{background:#DDF3E8; border-color:var(--green)} .sw.b{background:#E9E6F3; border-color:var(--plum)}
+  @media (prefers-reduced-motion:reduce){ .node,.edge{transition:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>From QR scan to result, and where each failure exits</h1>
+  <p class="lede">The scan workflow split by who does what. Each diamond is one check, and the first one that fails sends a specific error back to the student. Pick an outcome to light up its path.</p>
+</header>
+<main>
+  <div class="tabs" id="tabs" aria-label="Outcome"></div>
+  <section class="stage">
+    <p class="verdict all" id="verdict"></p>
+    <div class="scroll"><svg id="svg" viewBox="0 0 1180 980" role="img" aria-label="Activity diagram of the attendance scan with four swimlanes"></svg></div>
+    <div class="legend">
+      <span><i class="sw"></i>action</span>
+      <span><i class="sw d"></i>decision</span>
+      <span><i class="sw b"></i>database call</span>
+      <span><i class="sw e"></i>error response</span>
+      <span><i class="sw g"></i>success response</span>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var LANES=[{n:'Student',x:10,w:190},{n:'Frontend (student.js)',x:200,w:240},{n:'Backend (Spring Boot)',x:440,w:460},{n:'Database (MySQL)',x:900,w:270}];
+
+  // node: id, kind, cx, cy, w, h, text
+  var N={
+    start:{k:'start',x:110,y:80},
+    scan:{k:'act',x:110,y:140,w:150,h:40,t:['Scan event QR']},
+    gps:{k:'act',x:320,y:140,w:170,h:44,t:['Read GPS and','device ID']},
+    post:{k:'act',x:320,y:215,w:170,h:40,t:['POST /api/scan']},
+    call:{k:'act',x:740,y:215,w:190,h:40,t:['processAttendance()']},
+    d1:{k:'dec',x:740,y:300,w:190,h:70,t:['Event exists?']},
+    d2:{k:'dec',x:740,y:400,w:190,h:70,t:['Student already','marked?']},
+    calc:{k:'act',x:740,y:490,w:190,h:40,t:['Haversine distance']},
+    d3:{k:'dec',x:740,y:575,w:190,h:70,t:['Within radius?']},
+    d4:{k:'dec',x:740,y:675,w:190,h:70,t:['Device used by','another student?']},
+    save:{k:'act',x:740,y:770,w:190,h:40,t:['Save as PRESENT']},
+    e1:{k:'err',x:540,y:300,w:150,h:40,t:['404 NOT_FOUND']},
+    e2:{k:'err',x:540,y:400,w:150,h:44,t:['400 PROXY_ATTENDANCE','(already marked)']},
+    e3:{k:'err',x:540,y:575,w:150,h:44,t:['400 LOCATION_MISMATCH']},
+    e4:{k:'err',x:540,y:675,w:150,h:44,t:['400 PROXY_ATTENDANCE','(device reused)']},
+    ok:{k:'good',x:540,y:770,w:150,h:40,t:['200 SUCCESS']},
+    db1:{k:'db',x:1035,y:300,w:190,h:40,t:['SELECT event by id']},
+    db2:{k:'db',x:1035,y:400,w:190,h:40,t:['SELECT by event + student']},
+    db3:{k:'db',x:1035,y:675,w:190,h:40,t:['SELECT by event + device']},
+    db4:{k:'db',x:1035,y:770,w:190,h:40,t:['INSERT attendance']},
+    res:{k:'act',x:320,y:880,w:190,h:44,t:['Show result to student']},
+    end:{k:'end',x:110,y:945}
+  };
+  function top(n){return n.k==='start'||n.k==='end'?[n.x,n.y-(n.k==='end'?11:9)]:[n.x,n.y-n.h/2];}
+  function bot(n){return n.k==='start'||n.k==='end'?[n.x,n.y+(n.k==='end'?11:9)]:[n.x,n.y+n.h/2];}
+  function lft(n){return [n.x-(n.w||18)/2,n.y];}
+  function rgt(n){return [n.x+(n.w||18)/2,n.y];}
+  function P(pts){return 'M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L');}
+
+  // edges: from,to,pts,label,lx,ly,dashed
+  var E=[
+    ['start','scan',[bot(N.start),top(N.scan)]],
+    ['scan','gps',[rgt(N.scan),lft(N.gps)]],
+    ['gps','post',[bot(N.gps),top(N.post)]],
+    ['post','call',[rgt(N.post),lft(N.call)]],
+    ['call','d1',[bot(N.call),top(N.d1)]],
+    ['d1','d2',[bot(N.d1),top(N.d2)],'yes',752,352],
+    ['d1','e1',[lft(N.d1),rgt(N.e1)],'no',630,290],
+    ['d2','e2',[lft(N.d2),rgt(N.e2)],'yes',630,390],
+    ['d2','calc',[bot(N.d2),top(N.calc)],'no',752,452],
+    ['calc','d3',[bot(N.calc),top(N.d3)]],
+    ['d3','e3',[lft(N.d3),rgt(N.e3)],'no',630,565],
+    ['d3','d4',[bot(N.d3),top(N.d4)],'yes',752,627],
+    ['d4','e4',[lft(N.d4),rgt(N.e4)],'yes',630,665],
+    ['d4','save',[bot(N.d4),top(N.save)],'no',752,727],
+    ['save','ok',[lft(N.save),rgt(N.ok)]],
+    ['e1','res',[lft(N.e1),[320,300],[320,top(N.res)[1]]]],
+    ['e2','res',[lft(N.e2),[320,400],[320,top(N.res)[1]]]],
+    ['e3','res',[lft(N.e3),[320,575],[320,top(N.res)[1]]]],
+    ['e4','res',[lft(N.e4),[320,675],[320,top(N.res)[1]]]],
+    ['ok','res',[lft(N.ok),[320,770],[320,top(N.res)[1]]]],
+    ['res','end',[lft(N.res),[110,880],top(N.end)]],
+    ['d1','db1',[rgt(N.d1),lft(N.db1)],'',0,0,true],
+    ['d2','db2',[rgt(N.d2),lft(N.db2)],'',0,0,true],
+    ['d4','db3',[rgt(N.d4),lft(N.db3)],'',0,0,true],
+    ['save','db4',[rgt(N.save),lft(N.db4)],'',0,0,true]
+  ];
+
+  var COMMON=['start','scan','gps','post','call','d1','res','end'];
+  var SC={
+    all:{label:'All paths',cls:'all',text:'Every route through the scan. Pick an outcome to follow one of them.',set:null},
+    ok:{label:'Attendance marked',cls:'ok',text:'All four checks pass and the row is saved as PRESENT (HTTP 200).',
+        set:COMMON.concat(['d2','calc','d3','d4','save','ok','db1','db2','db3','db4'])},
+    nf:{label:'Unknown QR code',cls:'err',text:'Stops at the first check: the event does not exist (HTTP 404, NOT_FOUND).',
+        set:COMMON.concat(['e1','db1'])},
+    dup:{label:'Already marked',cls:'err',text:'Stops at the second check: this student already has a row for the event (HTTP 400, PROXY_ATTENDANCE).',
+        set:COMMON.concat(['d2','e2','db1','db2'])},
+    far:{label:'Outside geo-fence',cls:'err',text:'Stops at the distance check: the student is farther than the event radius (HTTP 400, LOCATION_MISMATCH).',
+        set:COMMON.concat(['d2','calc','d3','e3','db1','db2'])},
+    proxy:{label:'Device reused',cls:'err',text:'Stops at the device check: the same phone already marked another student (HTTP 400, PROXY_ATTENDANCE).',
+        set:COMMON.concat(['d2','calc','d3','d4','e4','db1','db2','db3'])}
+  };
+
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  var o='<defs><marker id="ar" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto"><path d="M1 1 L11 6 L1 11z" fill="#12303A"/></marker>'+
+        '<marker id="ar2" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto"><path d="M1 1 L11 6 L1 11z" fill="#5B4B8A"/></marker></defs>';
+  LANES.forEach(function(l,i){
+    o+='<rect class="lane'+(i%2?' alt':'')+'" x="'+l.x+'" y="10" width="'+l.w+'" height="960"/>';
+    o+='<text class="lname" x="'+(l.x+l.w/2)+'" y="34" text-anchor="middle">'+l.n+'</text>';
+  });
+  E.forEach(function(e,i){
+    o+='<g class="edge'+(e[6]?' dashed':'')+'" data-f="'+e[0]+'" data-t="'+e[1]+'"><path d="'+P(e[2])+'" marker-end="url(#'+(e[6]?'ar2':'ar')+')"/>';
+    if(e[3]) o+='<text x="'+e[4]+'" y="'+e[5]+'" text-anchor="middle">'+e[3]+'</text>';
+    o+='</g>';
+  });
+  Object.keys(N).forEach(function(id){
+    var n=N[id];
+    o+='<g class="node '+(n.k==='dec'?'dec':n.k==='err'?'err':n.k==='good'?'good':n.k==='db'?'db':'')+(n.k==='start'?' dot':'')+'" data-id="'+id+'">';
+    if(n.k==='start'){ o+='<circle class="shape" cx="'+n.x+'" cy="'+n.y+'" r="9"/>'; }
+    else if(n.k==='end'){ o+='<circle cx="'+n.x+'" cy="'+n.y+'" r="11" fill="#fff" stroke="#12303A" stroke-width="1.7"/><circle class="shape" style="fill:#12303A" cx="'+n.x+'" cy="'+n.y+'" r="6"/>'; }
+    else if(n.k==='dec'){
+      o+='<polygon class="shape" points="'+n.x+','+(n.y-n.h/2)+' '+(n.x+n.w/2)+','+n.y+' '+n.x+','+(n.y+n.h/2)+' '+(n.x-n.w/2)+','+n.y+'"/>';
+    } else {
+      o+='<rect class="shape" x="'+(n.x-n.w/2)+'" y="'+(n.y-n.h/2)+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.k==='db'?4:14)+'"/>';
+    }
+    if(n.t){
+      var ls=n.t, y0=n.y-(ls.length-1)*7+4;
+      ls.forEach(function(s,i){ o+='<text x="'+n.x+'" y="'+(y0+i*15)+'" text-anchor="middle">'+esc(s)+'</text>'; });
+    }
+    o+='</g>';
+  });
+  var svg=document.getElementById('svg'); svg.innerHTML=o;
+
+  function show(key){
+    var sc=SC[key], set=sc.set;
+    svg.classList.toggle('fade', !!set);
+    svg.querySelectorAll('.node').forEach(function(g){ g.classList.toggle('on', !set || set.indexOf(g.dataset.id)>-1); });
+    var edges=Array.prototype.slice.call(svg.querySelectorAll('.edge'));
+    edges.forEach(function(g){
+      var on=!set || (set.indexOf(g.dataset.f)>-1 && set.indexOf(g.dataset.t)>-1);
+      g.classList.toggle('on',on);
+      if(on && set) svg.appendChild(g); // draw highlighted edges on top
+    });
+    // keep nodes above edges
+    svg.querySelectorAll('.node').forEach(function(g){ svg.appendChild(g); });
+    var v=document.getElementById('verdict'); v.className='verdict '+sc.cls; v.textContent=sc.text;
+    document.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-pressed', t.dataset.k===key?'true':'false'); });
+  }
+  var tabs=document.getElementById('tabs');
+  Object.keys(SC).forEach(function(k){
+    var b=document.createElement('button'); b.className='tab '+SC[k].cls; b.dataset.k=k; b.textContent=SC[k].label;
+    b.addEventListener('click',function(){show(k);}); tabs.appendChild(b);
+  });
+  show('ok');
+})();
+</script>
+</body>
+</html>
