@@ -152,7 +152,12 @@ function setupTabNavigation() {
 
                 loadAnalytics();
             }
+            
+            // Load my events when opened
+            if (tabName === 'my-events') {
 
+                loadMyEvents();
+            }
         });
 
     });
@@ -1024,4 +1029,213 @@ function downloadFile(
 
     window.URL.revokeObjectURL(url);
 
+}
+
+
+/* ============================================
+   MY EVENTS LIST
+   ============================================ */
+
+async function loadMyEvents() {
+
+    const tbody = document.getElementById('myEventsBody');
+
+    if (!tbody) return;
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center text-muted">
+                Loading events...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        const response = await fetch(
+            `${CONFIG.API_BASE_URL}/events/admin/${currentUser.id}`
+        );
+
+        const result = await response.json();
+
+        const events = result.status === 'SUCCESS'
+            ? (result.data || [])
+            : [];
+
+        if (events.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        No events created yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        // Fetch attendance counts in parallel
+        const counts = await Promise.all(
+            events.map(ev =>
+                fetch(`${CONFIG.API_BASE_URL}/attendance/count/${ev.id}`)
+                    .then(r => r.json())
+                    .then(r => r.status === 'SUCCESS' ? r.data : 0)
+                    .catch(() => 0)
+            )
+        );
+
+        tbody.innerHTML = events.map((ev, i) => {
+
+            const date = ev.eventDate || '';
+            const start = ev.startTime || '';
+            const end = ev.endTime || '';
+
+            return `
+                <tr>
+                    <td>${ev.id}</td>
+                    <td>${ev.title}</td>
+                    <td>${date}</td>
+                    <td>${start} - ${end}</td>
+                    <td>${ev.radiusMeters} m</td>
+                    <td><strong>${counts[i]}</strong></td>
+                    <td>
+                        <button
+                            class="btn btn-outline btn-sm"
+                            onclick="showEventDetail(${ev.id})"
+                        >
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (error) {
+
+        console.error('Error loading events:', error);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    Failed to load events.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+/* ============================================
+   EVENT DETAIL MODAL
+   ============================================ */
+
+async function showEventDetail(eventId) {
+
+    const modal = document.getElementById('eventDetailModal');
+
+    if (!modal) return;
+
+    // Show modal immediately with loading state
+    modal.style.display = 'flex';
+
+    document.getElementById('eventDetailTitle').textContent = 'Loading...';
+    document.getElementById('eventDetailDate').textContent = '';
+    document.getElementById('eventDetailTime').textContent = '';
+    document.getElementById('eventDetailDescription').textContent = '';
+    document.getElementById('eventDetailLocation').textContent = '';
+    document.getElementById('eventDetailRadius').textContent = '';
+
+    document.getElementById('eventAttendanceBody').innerHTML = `
+        <tr>
+            <td colspan="4" class="text-center text-muted">
+                Loading...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        // Fetch event details
+        const evRes = await fetch(`${CONFIG.API_BASE_URL}/events/${eventId}`);
+        const evJson = await evRes.json();
+
+        if (evJson.status !== 'SUCCESS') {
+            throw new Error(evJson.message || 'Failed to load event');
+        }
+
+        const ev = evJson.data;
+
+        document.getElementById('eventDetailTitle').textContent = ev.title || '';
+        document.getElementById('eventDetailDate').textContent = ev.eventDate || '';
+        document.getElementById('eventDetailTime').textContent =
+            `${ev.startTime || ''} - ${ev.endTime || ''}`;
+        document.getElementById('eventDetailDescription').textContent =
+            ev.description || '(no description)';
+        document.getElementById('eventDetailLocation').textContent =
+            `${ev.latitude}, ${ev.longitude}`;
+        document.getElementById('eventDetailRadius').textContent =
+            ev.radiusMeters;
+
+        // Fetch attendance for this event
+        const attRes = await fetch(
+            `${CONFIG.API_BASE_URL}/attendance/event/${eventId}`
+        );
+        const attJson = await attRes.json();
+
+        const records = attJson.status === 'SUCCESS'
+            ? (attJson.data || [])
+            : [];
+
+        const tbody = document.getElementById('eventAttendanceBody');
+
+        if (records.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        No attendance records yet.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            tbody.innerHTML = records.map(r => `
+                <tr>
+                    <td>${r.studentId}</td>
+                    <td>${formatTime(r.timestamp)}</td>
+                    <td>${r.distanceMeters ? r.distanceMeters.toFixed(2) + ' m' : '-'}</td>
+                    <td>
+                        <span class="${r.status === 'SUCCESS' ? 'text-success' : 'text-danger'}">
+                            ${r.status || 'UNKNOWN'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+    } catch (error) {
+
+        console.error('Error loading event detail:', error);
+
+        document.getElementById('eventDetailTitle').textContent = 'Error';
+        document.getElementById('eventAttendanceBody').innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    Failed to load event details.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+function closeEventDetail() {
+
+    const modal = document.getElementById('eventDetailModal');
+
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }

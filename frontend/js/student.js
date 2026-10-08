@@ -389,3 +389,94 @@ function showScanResult(message, type) {
     result.textContent = message;
     result.className = `scan-result ${type}`;
 }
+
+
+/* ============================================
+   STUDENT ATTENDANCE HISTORY
+   ============================================ */
+
+async function loadStudentHistory() {
+
+    const tbody = document.getElementById('studentHistoryBody');
+
+    if (!tbody) return;
+
+    const stored = localStorage.getItem(CONFIG.USER_KEY);
+
+    if (!stored) return;
+
+    let user;
+
+    try {
+        user = JSON.parse(stored);
+    } catch {
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="4" class="text-center text-muted">
+                Loading...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        const response = await fetch(
+            `${CONFIG.API_BASE_URL}/attendance/student/${user.id}`
+        );
+
+        const result = await response.json();
+
+        const records = result.status === 'SUCCESS'
+            ? (result.data || [])
+            : [];
+
+        if (records.length === 0) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        No attendance yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML = records.map(r => `
+            <tr>
+                <td>${r.eventId}</td>
+                <td>${formatTime(r.timestamp)}</td>
+                <td>${r.distanceMeters ? r.distanceMeters.toFixed(2) + ' m' : '-'}</td>
+                <td>
+                    <span class="${r.status === 'SUCCESS' ? 'text-success' : 'text-danger'}">
+                        ${r.status || 'UNKNOWN'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+
+        console.error('Error loading history:', error);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    Failed to load history.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+// Auto-load on page open
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('studentHistoryBody')) {
+        loadStudentHistory();
+    }
+});

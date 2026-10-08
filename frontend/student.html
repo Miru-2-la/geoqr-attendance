@@ -94,7 +94,51 @@
         </div>
 
     </nav>
+    
+        <!-- Attendance History -->
+    <div class="container mt-lg">
 
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>My Attendance</h2>
+
+                <button
+                    class="btn btn-outline btn-sm"
+                    onclick="loadStudentHistory()"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+            <table class="table">
+
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Time</th>
+                        <th>Distance</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="studentHistoryBody">
+
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            Loading...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
     <!-- Main Content -->
 
