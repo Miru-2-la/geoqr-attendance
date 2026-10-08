@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQR Attend – Use Case Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8EFEB; --paper-2:#DDE7E2; --ink:#12303A; --ink-2:#47616B;
+    --teal:#0B6E8A; --plum:#5B4B8A; --rose:#C2255C; --green:#1B8A57; --gold:#8A6A0B;
+    --line:rgba(18,48,58,.18);
+    --display:"Familjen Grotesk","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{margin:0; color:var(--ink); font-family:var(--display); font-size:16px; line-height:1.5; min-height:100vh;
+    background:
+      repeating-radial-gradient(circle at 92% 6%, transparent 0 26px, rgba(18,48,58,.055) 26px 27px),
+      repeating-radial-gradient(circle at 4% 96%, transparent 0 34px, rgba(18,48,58,.045) 34px 35px), var(--paper);}
+  header{padding:36px clamp(16px,4vw,56px) 8px; max-width:1400px; margin:0 auto}
+  h1{font-size:clamp(30px,4.6vw,52px); line-height:1.02; margin:0 0 10px; letter-spacing:-.02em; font-weight:700}
+  .lede{max-width:64ch; margin:0; color:var(--ink-2); font-size:18px}
+  main{max-width:1400px; margin:0 auto; padding:18px clamp(16px,4vw,56px) 56px}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+  .tab{all:unset; cursor:pointer; padding:9px 16px; border:1.5px solid var(--line); border-left-width:6px; border-radius:6px; background:rgba(255,255,255,.55); font-weight:700; font-size:15px}
+  .tab:hover{background:#fff}
+  .tab:focus-visible{outline:3px solid var(--ink); outline-offset:2px}
+  .tab[aria-pressed="true"]{background:#fff; border-color:var(--ink)}
+  .tab.s{border-left-color:var(--teal)} .tab.a{border-left-color:var(--plum)} .tab.x{border-left-color:var(--gold)}
+  .stage{background:rgba(255,255,255,.7); border:1.5px solid var(--line); border-radius:8px; padding:14px}
+  .scroll{overflow-x:auto}
+  svg{display:block; width:100%; height:auto; min-width:900px}
+  .sys{fill:rgba(255,255,255,.55); stroke:var(--ink); stroke-width:2}
+  .sysname{font:700 16px var(--display); fill:var(--ink)}
+  .uc ellipse{fill:#fff; stroke:var(--ink); stroke-width:1.7}
+  .uc.core ellipse{fill:#DDF3E8; stroke:var(--green); stroke-width:2.2}
+  .uc.sub ellipse{fill:#FFF8D6; stroke:var(--gold)}
+  .uc text{font:500 13px var(--display); fill:var(--ink)}
+  .uc{transition:opacity .2s; cursor:default}
+  .link{transition:opacity .2s}
+  .link line{stroke:var(--ink); stroke-width:1.6}
+  .link.inc line{stroke:var(--gold); stroke-dasharray:6 5}
+  .link text{font:500 11.5px var(--mono); fill:var(--gold); paint-order:stroke; stroke:#fff; stroke-width:5px}
+  .actor text{font:700 15px var(--display); fill:var(--ink)}
+  .actor .fig{stroke:var(--ink); stroke-width:2.4; fill:none; stroke-linecap:round}
+  .actor .head{fill:#fff}
+  .fade .uc,.fade .link{opacity:.14}
+  .fade .uc.on,.fade .link.on{opacity:1}
+  .fade .link.on line{stroke-width:2.6}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; font-size:14px; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .sw{width:22px; height:14px; border-radius:50%; border:1.7px solid var(--ink); background:#fff; display:inline-block}
+  .sw.g{background:#DDF3E8; border-color:var(--green)} .sw.y{background:#FFF8D6; border-color:var(--gold)}
+  table{border-collapse:collapse; width:100%; margin-top:16px; font-size:15px}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-size:14px; color:var(--ink-2)}
+  td code{font:500 12.5px var(--mono); background:var(--paper-2); padding:1px 6px; border-radius:3px}
+  @media (prefers-reduced-motion:reduce){ .uc,.link{transition:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Two actors, eight things they can do</h1>
+  <p class="lede">What each role can do in GeoQR Attend. The green one is the heart of the project: marking attendance, which always checks location and device before saving. Choose a role to see only its features.</p>
+</header>
+<main>
+  <div class="tabs" id="tabs"></div>
+  <section class="stage">
+    <div class="scroll"><svg id="svg" viewBox="0 0 1100 700" role="img" aria-label="Use case diagram with Student and Admin actors"></svg></div>
+    <div class="legend">
+      <span><i class="sw g"></i>core feature</span>
+      <span><i class="sw y"></i>check that always runs as part of it</span>
+      <span><i class="sw"></i>other feature</span>
+      <span>Dashed arrows labelled «include» mean the check is always performed.</span>
+    </div>
+    <table>
+      <thead><tr><th>Use case</th><th>Actor</th><th>What happens</th><th>Endpoint</th></tr></thead>
+      <tbody>
+        <tr><td>Log in</td><td>Both</td><td>Email, password and role are checked, then a session token is returned.</td><td><code>POST /api/auth/login</code></td></tr>
+        <tr><td>Mark attendance</td><td>Student</td><td>Scans the QR code. The backend verifies the event, location and device before saving.</td><td><code>POST /api/scan</code></td></tr>
+        <tr><td>View my attendance history</td><td>Student</td><td>Lists the student's own records, newest first.</td><td><code>GET /api/attendance/student/{id}</code></td></tr>
+        <tr><td>Create event and QR code</td><td>Admin</td><td>Sets title, time, location and radius. A QR code for the event is generated.</td><td><code>POST /api/events</code></td></tr>
+        <tr><td>View event attendance</td><td>Admin</td><td>Shows who attended an event and how many.</td><td><code>GET /api/attendance/event/{id}</code></td></tr>
+        <tr><td>View dashboard</td><td>Admin</td><td>Recent scans and event list.</td><td><code>GET /api/attendance/recent</code></td></tr>
+        <tr><td>View analytics</td><td>Admin</td><td>At-risk students under 75% and the 7-day trend.</td><td><code>GET /api/analytics/…</code></td></tr>
+        <tr><td>Download report</td><td>Admin</td><td>Exports attendance as CSV or PDF.</td><td><code>GET /api/reports/csv</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var UC={
+    login:{x:550,y:110,t:['Log in'],who:['s','a'],cls:''},
+    mark:{x:400,y:250,t:['Mark attendance','by scanning QR'],who:['s'],cls:'core',rx:110,ry:40},
+    geo:{x:225,y:400,t:['Verify location','(Haversine)'],who:['s'],cls:'sub'},
+    dev:{x:400,y:430,t:['Detect proxy','device'],who:['s'],cls:'sub'},
+    dup:{x:575,y:400,t:['Block duplicate','scan'],who:['s'],cls:'sub'},
+    hist:{x:250,y:580,t:['View my attendance','history'],who:['s'],cls:''},
+    create:{x:830,y:210,t:['Create event','and QR code'],who:['a'],cls:'',rx:100,ry:36},
+    list:{x:830,y:330,t:['View event','attendance'],who:['a'],cls:''},
+    dash:{x:830,y:440,t:['View dashboard'],who:['a'],cls:''},
+    ana:{x:830,y:550,t:['View analytics','(at-risk, trend)'],who:['a'],cls:''},
+    rep:{x:830,y:640,t:['Download report','(CSV / PDF)'],who:['a'],cls:'',rx:100,ry:30}
+  };
+  // actor anchors
+  var ACT={s:{x:70,y:330,n:'Student'}, a:{x:1030,y:380,n:'Admin'}};
+  var LINKS=[
+    ['s','login'],['a','login'],['s','mark'],['s','hist'],
+    ['a','create'],['a','list'],['a','dash'],['a','ana'],['a','rep']
+  ];
+  var INC=[['mark','geo'],['mark','dev'],['mark','dup']];
+
+  function rx(u){return u.rx||90;} function ry(u){return u.ry||32;}
+  function edge(ax,ay,u){ // point on ellipse toward (ax,ay)
+    var dx=ax-u.x, dy=ay-u.y, a=rx(u), b=ry(u), k=1/Math.sqrt((dx*dx)/(a*a)+(dy*dy)/(b*b));
+    return [u.x+dx*k, u.y+dy*k];
+  }
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+  var o='<defs><marker id="ai" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto"><path d="M2 1.5 L10.5 6 L2 10.5" fill="none" stroke="#8A6A0B" stroke-width="1.8"/></marker></defs>';
+  o+='<rect class="sys" x="170" y="20" width="760" height="665" rx="14"/>';
+  o+='<text class="sysname" x="550" y="48" text-anchor="middle">GeoQR Attend system</text>';
+
+  LINKS.forEach(function(l){
+    var a=ACT[l[0]], u=UC[l[1]], p=edge(a.x,a.y-20,u);
+    o+='<g class="link" data-who="'+l[0]+'" data-uc="'+l[1]+'"><line x1="'+a.x+'" y1="'+(a.y-20)+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'"/></g>';
+  });
+  INC.forEach(function(l){
+    var a=UC[l[0]], b=UC[l[1]], p1=edge(b.x,b.y,a), p2=edge(a.x,a.y,b);
+    o+='<g class="link inc" data-who="s" data-uc="'+l[1]+'"><line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" marker-end="url(#ai)"/>'+
+       '<text x="'+((p1[0]+p2[0])/2+(l[1]==='geo'?-34:l[1]==='dup'?34:18)).toFixed(1)+'" y="'+(((p1[1]+p2[1])/2)).toFixed(1)+'" text-anchor="middle">«include»</text></g>';
+  });
+  Object.keys(UC).forEach(function(id){
+    var u=UC[id];
+    o+='<g class="uc '+u.cls+'" data-id="'+id+'"><ellipse cx="'+u.x+'" cy="'+u.y+'" rx="'+rx(u)+'" ry="'+ry(u)+'"/>';
+    var y0=u.y-(u.t.length-1)*8+4;
+    u.t.forEach(function(s,i){ o+='<text x="'+u.x+'" y="'+(y0+i*16)+'" text-anchor="middle">'+esc(s)+'</text>'; });
+    o+='</g>';
+  });
+  Object.keys(ACT).forEach(function(k){
+    var a=ACT[k];
+    o+='<g class="actor" data-who="'+k+'"><circle class="head fig" cx="'+a.x+'" cy="'+(a.y-48)+'" r="14"/>'+
+       '<path class="fig" d="M'+a.x+' '+(a.y-34)+' V'+(a.y+14)+' M'+(a.x-26)+' '+(a.y-16)+' H'+(a.x+26)+' M'+a.x+' '+(a.y+14)+' L'+(a.x-20)+' '+(a.y+48)+' M'+a.x+' '+(a.y+14)+' L'+(a.x+20)+' '+(a.y+48)+'"/>'+
+       '<text x="'+a.x+'" y="'+(a.y+72)+'" text-anchor="middle">'+a.n+'</text></g>';
+  });
+  var svg=document.getElementById('svg'); svg.innerHTML=o;
+
+  var VIEWS={all:'Everyone',s:'Student',a:'Admin'};
+  function show(k){
+    svg.classList.toggle('fade',k!=='all');
+    svg.querySelectorAll('.uc').forEach(function(g){
+      var u=UC[g.dataset.id]; g.classList.toggle('on', k==='all' || u.who.indexOf(k)>-1);
+    });
+    svg.querySelectorAll('.link').forEach(function(g){
+      g.classList.toggle('on', k==='all' || g.dataset.who===k);
+    });
+    document.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-pressed', t.dataset.k===k?'true':'false'); });
+  }
+  var tabs=document.getElementById('tabs');
+  Object.keys(VIEWS).forEach(function(k){
+    var b=document.createElement('button'); b.className='tab '+(k==='all'?'x':k); b.dataset.k=k; b.textContent=VIEWS[k];
+    b.addEventListener('click',function(){show(k);}); tabs.appendChild(b);
+  });
+  show('all');
+})();
+</script>
+</body>
+</html>

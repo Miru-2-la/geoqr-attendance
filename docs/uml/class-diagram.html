@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQR Attend – Class Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8EFEB; --paper-2:#DDE7E2; --ink:#12303A; --ink-2:#47616B;
+    --teal:#0B6E8A; --plum:#5B4B8A; --gold:#8A6A0B; --rose:#C2255C; --slate:#6B7C84; --green:#1B8A57;
+    --line:rgba(18,48,58,.18);
+    --display:"Familjen Grotesk","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{margin:0; color:var(--ink); font-family:var(--display); font-size:16px; line-height:1.5; min-height:100vh;
+    background:
+      repeating-radial-gradient(circle at 92% 6%, transparent 0 26px, rgba(18,48,58,.055) 26px 27px),
+      repeating-radial-gradient(circle at 4% 96%, transparent 0 34px, rgba(18,48,58,.045) 34px 35px), var(--paper);}
+  header{padding:36px clamp(16px,4vw,56px) 8px; max-width:1400px; margin:0 auto}
+  h1{font-size:clamp(30px,4.6vw,52px); line-height:1.02; margin:0 0 10px; letter-spacing:-.02em; font-weight:700}
+  .lede{max-width:64ch; margin:0; color:var(--ink-2); font-size:18px}
+  main{max-width:1400px; margin:0 auto; padding:18px clamp(16px,4vw,56px) 56px}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+  .tab{all:unset; cursor:pointer; padding:9px 16px; border:1.5px solid var(--line); border-radius:6px; background:rgba(255,255,255,.55); font-weight:700; font-size:15px}
+  .tab:hover{background:#fff}
+  .tab:focus-visible{outline:3px solid var(--ink); outline-offset:2px}
+  .tab[aria-selected="true"]{background:var(--ink); color:#fff; border-color:var(--ink)}
+  .stage{background:rgba(255,255,255,.7); border:1.5px solid var(--line); border-radius:8px; padding:14px}
+  .note{margin:0 0 10px; color:var(--ink-2); max-width:90ch}
+  .scroll{overflow-x:auto}
+  svg{display:block; width:100%; height:auto}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; font-size:14px; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .legend svg{width:34px; height:14px; display:inline-block}
+  .callout{margin-top:12px; padding:12px 14px; border-left:5px solid var(--rose); background:rgba(194,37,92,.08); border-radius:4px; font-size:15px; max-width:100ch}
+  .callout[hidden]{display:none}
+
+  .box rect.frame{fill:#fff; stroke:var(--ink); stroke-width:1.6}
+  .box .name{font:700 14.5px var(--display); fill:#fff}
+  .box .st{font:400 11.5px var(--mono); fill:rgba(255,255,255,.85)}
+  .box .m{font:400 12.5px var(--mono); fill:var(--ink)}
+  .box .sep{stroke:var(--line); stroke-width:1}
+  .box{transition:opacity .15s}
+  .edge{transition:opacity .15s}
+  .edge line{stroke:var(--ink); stroke-width:1.8}
+  .edge.dashed line{stroke-dasharray:6 5}
+  .edge text{font:500 12px var(--mono); fill:var(--ink); paint-order:stroke; stroke:#fff; stroke-width:5px; stroke-linejoin:round}
+  .dim .box, .dim .edge{opacity:.22}
+  .dim .box.hot, .dim .edge.hot{opacity:1}
+  .hot line{stroke-width:2.6}
+  @media (prefers-reduced-motion:reduce){ .box,.edge{transition:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Five layers, one rule: controllers never touch the database</h1>
+  <p class="lede">Every class in the Spring Boot backend, grouped into four views. Hover a class to light up everything it is connected to.</p>
+</header>
+<main>
+  <div class="tabs" role="tablist" aria-label="Diagram view" id="tabs"></div>
+  <section class="stage">
+    <p class="note" id="note"></p>
+    <div class="scroll"><svg id="svg" role="img" aria-label="UML class diagram"></svg></div>
+    <div class="legend" aria-label="Legend">
+      <span><svg viewBox="0 0 34 14"><line x1="0" y1="7" x2="26" y2="7" stroke="#12303A" stroke-width="1.8"/><path d="M34 7 L24 2 L24 12z" fill="#fff" stroke="#12303A" stroke-width="1.6"/></svg>extends</span>
+      <span><svg viewBox="0 0 34 14"><line x1="0" y1="7" x2="26" y2="7" stroke="#12303A" stroke-width="1.8" stroke-dasharray="5 4"/><path d="M34 7 L24 2 L24 12z" fill="#fff" stroke="#12303A" stroke-width="1.6"/></svg>implements</span>
+      <span><svg viewBox="0 0 34 14"><line x1="0" y1="7" x2="30" y2="7" stroke="#12303A" stroke-width="1.8"/><path d="M24 2 L32 7 L24 12" fill="none" stroke="#12303A" stroke-width="1.8"/></svg>has / holds</span>
+      <span><svg viewBox="0 0 34 14"><line x1="0" y1="7" x2="30" y2="7" stroke="#12303A" stroke-width="1.8" stroke-dasharray="5 4"/><path d="M24 2 L32 7 L24 12" fill="none" stroke="#12303A" stroke-width="1.8"/></svg>uses</span>
+    </div>
+    <div class="callout" id="callout" hidden></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var TONE = {entity:'#0B6E8A', service:'#12303A', controller:'#47616B', repo:'#5B4B8A', util:'#8A6A0B', iface:'#1B8A57', exc:'#C2255C', ext:'#6B7C84'};
+  var LH = 19;
+
+  var VIEWS = {
+    domain:{
+      label:'Domain model',
+      note:'Admin and Student share one users table (single-table inheritance, split by the role column). Attendance stores plain event and student ids instead of object references.',
+      boxes:[
+        {id:'User',cx:330,y:20,tone:'entity',st:'«entity» users table',name:'User',
+         attrs:['-id: Long','-name: String','-email: String  (unique)','-password: String','-createdAt: LocalDateTime']},
+        {id:'Admin',cx:130,y:290,tone:'entity',st:'«entity» role = ADMIN',name:'Admin',attrs:['-adminCode: String']},
+        {id:'Student',cx:470,y:290,tone:'entity',st:'«entity» role = STUDENT',name:'Student',attrs:['-rollNumber: String']},
+        {id:'Event',cx:900,y:20,tone:'entity',st:'«entity» events table',name:'Event',
+         attrs:['-id: Long','-title: String','-description: String','-latitude: Double','-longitude: Double','-radiusMeters: Integer = 50','-eventDate: LocalDate','-startTime: LocalTime','-endTime: LocalTime','-createdBy: User','-createdAt: LocalDateTime']},
+        {id:'Attendance',cx:900,y:400,tone:'entity',st:'«entity» attendance table',name:'Attendance',
+         attrs:['-id: Long','-eventId: Long','-studentId: Long','-deviceId: String','-studentLat: Double','-studentLong: Double','-distanceMeters: Double','-status: String = "PRESENT"','-timestamp: LocalDateTime']}
+      ],
+      edges:[
+        {a:'Admin',b:'User',t:'inherit'},
+        {a:'Student',b:'User',t:'inherit'},
+        {a:'Event',b:'User',t:'assoc',l:'createdBy',m1:'N',m2:'1'},
+        {a:'Attendance',b:'Event',t:'dep',l:'eventId',m1:'N',m2:'1'},
+        {a:'Attendance',b:'Student',t:'dep',l:'studentId',m1:'N',m2:'1'}
+      ],
+      callout:'Only Event.createdBy is a real foreign key. Attendance.eventId and studentId are plain columns, so the database does not enforce them (see the ER diagram).'
+    },
+    flow:{
+      label:'Request flow',
+      note:'Each feature follows the same path: controller → service → repository. The only extra helper is GeoUtils, used by AttendanceService for the Haversine distance.',
+      boxes:[
+        {id:'AuthController',cx:130,y:20,tone:'controller',st:'«controller» /api/auth',name:'AuthController',meths:['+login(LoginRequest)']},
+        {id:'EventController',cx:380,y:20,tone:'controller',st:'«controller» /api/events',name:'EventController',meths:['+createEvent()','+getAllEvents()','+getEventById()','+getEventsByAdmin()']},
+        {id:'AnalyticsController',cx:640,y:20,tone:'controller',st:'«controller» /api/analytics',name:'AnalyticsController',meths:['+getAtRiskStudents()','+getAttendanceTrend()']},
+        {id:'AttendanceController',cx:920,y:20,tone:'controller',st:'«controller» /api',name:'AttendanceController',meths:['+markAttendance()','+getAttendanceByEvent()','+getAttendanceByStudent()','+getRecentAttendance()','+getAttendanceCount()']},
+        {id:'ReportController',cx:1190,y:20,tone:'controller',st:'«controller» /api/reports',name:'ReportController',meths:['+downloadCSVReport()','+downloadPDFReport()']},
+
+        {id:'AuthService',cx:130,y:270,tone:'service',st:'«service»',name:'AuthService',meths:['+login(LoginRequest)']},
+        {id:'EventService',cx:380,y:270,tone:'service',st:'«service»',name:'EventService',meths:['+createEvent()','+getAllEvents()','+getEventById()','+getEventsByAdmin()']},
+        {id:'AnalyticsService',cx:640,y:270,tone:'service',st:'«service»',name:'AnalyticsService',meths:['+getAtRiskStudents()','+getAttendanceTrend()']},
+        {id:'AttendanceService',cx:920,y:270,tone:'service',st:'«service»',name:'AttendanceService',meths:['+processAttendance(ScanRequest)','+getAttendanceByEvent()','+getAttendanceByStudent()','+getRecentAttendance()','+getAttendanceCount()']},
+        {id:'ReportService',cx:1190,y:270,tone:'service',st:'«service»',name:'ReportService',meths:['+generateReport(records, format)']},
+
+        {id:'UserRepository',cx:130,y:560,tone:'repo',st:'«repository»',name:'UserRepository',meths:['findByEmailAndPassword()','existsByEmail()']},
+        {id:'EventRepository',cx:420,y:560,tone:'repo',st:'«repository»',name:'EventRepository',meths:['findAllByOrderByCreatedAtDesc()','findByCreatedByIdOrderBy…()']},
+        {id:'AttendanceRepository',cx:760,y:560,tone:'repo',st:'«repository»',name:'AttendanceRepository',meths:['existsByEventIdAndStudentId()','existsByEventIdAndDeviceId()','findAllAtRiskStudents()','findAttendanceTrend()']},
+        {id:'GeoUtils',cx:1100,y:560,tone:'util',st:'«utility»',name:'GeoUtils',attrs:['-EARTH_RADIUS_METERS = 6371000'],meths:['+getDistance(lat1, lon1, lat2, lon2)']}
+      ],
+      edges:[
+        {a:'AuthController',b:'AuthService',t:'dep'},{a:'EventController',b:'EventService',t:'dep'},
+        {a:'AnalyticsController',b:'AnalyticsService',t:'dep'},{a:'AttendanceController',b:'AttendanceService',t:'dep'},
+        {a:'ReportController',b:'ReportService',t:'dep'},{a:'ReportController',b:'AttendanceService',t:'dep'},
+        {a:'AuthService',b:'UserRepository',t:'dep'},{a:'EventService',b:'EventRepository',t:'dep'},
+        {a:'AnalyticsService',b:'AttendanceRepository',t:'dep'},
+        {a:'AttendanceService',b:'AttendanceRepository',t:'dep'},{a:'AttendanceService',b:'EventRepository',t:'dep'},
+        {a:'AttendanceService',b:'GeoUtils',t:'dep',l:'distance'}
+      ]
+    },
+    reports:{
+      label:'Reports',
+      note:'Report formats use the Strategy pattern: ReportService picks a ReportGenerator at runtime, so adding Excel later means adding one class.',
+      boxes:[
+        {id:'ReportController',cx:160,y:40,tone:'controller',st:'«controller»',name:'ReportController',meths:['+downloadCSVReport()','+downloadPDFReport()']},
+        {id:'ReportService',cx:520,y:40,tone:'service',st:'«service»',name:'ReportService',attrs:['-csvReportGenerator: ReportGenerator','-pdfReportGenerator: ReportGenerator'],meths:['+generateReport(records, format): String','+getFileExtension(format): String','+getContentType(format): String']},
+        {id:'ReportGenerator',cx:960,y:40,tone:'iface',st:'«interface»',name:'ReportGenerator',meths:['+generateReport(List<Attendance>): String','+getFileExtension(): String','+getContentType(): String']},
+        {id:'CSV',cx:760,y:330,tone:'iface',st:'«component» csvReportGenerator',name:'CSVReportGenerator',meths:['+generateReport(): String','+getFileExtension()  "csv"','+getContentType()  "text/csv"']},
+        {id:'PDF',cx:1150,y:330,tone:'iface',st:'«component» pdfReportGenerator',name:'PDFReportGenerator',meths:['+generateReport(): String','+getFileExtension()  "pdf"','+getContentType()  "application/pdf"']}
+      ],
+      edges:[
+        {a:'ReportController',b:'ReportService',t:'dep'},
+        {a:'ReportService',b:'ReportGenerator',t:'assoc',l:'strategy',m1:'2',m2:'1'},
+        {a:'CSV',b:'ReportGenerator',t:'realize'},{a:'PDF',b:'ReportGenerator',t:'realize'}
+      ],
+      callout:'Known issue K-1: PDFReportGenerator returns plain text, not a real PDF file. For the demo, download the CSV report. Fix: use OpenPDF and return byte[].'
+    },
+    errors:{
+      label:'Exceptions',
+      note:'Services throw plain exceptions. GlobalExceptionHandler is the only place that turns them into HTTP status codes and the standard ApiResponse JSON.',
+      boxes:[
+        {id:'RuntimeException',cx:560,y:20,tone:'ext',st:'«java.lang»',name:'RuntimeException'},
+        {id:'LocationMismatchException',cx:170,y:190,tone:'exc',st:'«exception»',name:'LocationMismatchException',meths:['+LocationMismatchException(message)']},
+        {id:'ProxyAttendanceException',cx:560,y:190,tone:'exc',st:'«exception»',name:'ProxyAttendanceException',meths:['+ProxyAttendanceException(message)']},
+        {id:'ResourceNotFoundException',cx:960,y:190,tone:'exc',st:'«exception»',name:'ResourceNotFoundException',meths:['+ResourceNotFoundException(message)']},
+        {id:'GlobalExceptionHandler',cx:330,y:400,tone:'service',st:'«@RestControllerAdvice»',name:'GlobalExceptionHandler',
+         meths:['+handleLocationMismatch(): 400 LOCATION_MISMATCH','+handleProxyAttendance(): 400 PROXY_ATTENDANCE','+handleResourceNotFound(): 404 NOT_FOUND','+handleGenericException(): 500 INTERNAL_ERROR']},
+        {id:'ApiResponse',cx:960,y:400,tone:'util',st:'«dto»',name:'ApiResponse<T>',
+         attrs:['-status: String','-message: String','-data: T','-errorCode: String'],meths:['+success(message, data)','+error(message, errorCode)']}
+      ],
+      edges:[
+        {a:'LocationMismatchException',b:'RuntimeException',t:'inherit'},{a:'ProxyAttendanceException',b:'RuntimeException',t:'inherit'},{a:'ResourceNotFoundException',b:'RuntimeException',t:'inherit'},
+        {a:'GlobalExceptionHandler',b:'LocationMismatchException',t:'dep',l:'handles'},
+        {a:'GlobalExceptionHandler',b:'ProxyAttendanceException',t:'dep'},
+        {a:'GlobalExceptionHandler',b:'ResourceNotFoundException',t:'dep'},
+        {a:'GlobalExceptionHandler',b:'ApiResponse',t:'dep',l:'builds'}
+      ]
+    }
+  };
+
+  var NS='http://www.w3.org/2000/svg';
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function anchor(b,tx,ty){
+    var cx=b.x+b.w/2, cy=b.y+b.h/2, dx=tx-cx, dy=ty-cy;
+    if(!dx && !dy) return [cx,cy];
+    var s=Math.min((b.w/2)/Math.max(Math.abs(dx),1e-9),(b.h/2)/Math.max(Math.abs(dy),1e-9));
+    return [cx+dx*s, cy+dy*s];
+  }
+
+  function render(key){
+    var v=VIEWS[key], B={}, maxX=0, maxY=0, out='';
+    v.boxes.forEach(function(b){
+      var lines=[].concat(b.attrs||[], b.meths||[]);
+      var chars=lines.reduce(function(m,s){return Math.max(m,s.length);},0);
+      b.w=Math.max(180, Math.round(Math.max(chars*7.6, b.name.length*9, (b.st||'').length*7)+34));
+      var head=b.st?50:34, na=(b.attrs||[]).length, nm=(b.meths||[]).length;
+      b.h=head+(na?na*LH+14:0)+(nm?nm*LH+14:0)+((!na&&!nm)?6:0);
+      b.x=b.cx-b.w/2; B[b.id]=b;
+      maxX=Math.max(maxX,b.x+b.w); maxY=Math.max(maxY,b.y+b.h);
+    });
+    var minX=Math.min.apply(null,v.boxes.map(function(b){return b.x;}));
+    var shift = minX<16 ? 16-minX : 0;
+    var W=maxX+shift+16, H=maxY+24;
+    out+='<svg xmlns="'+NS+'" viewBox="0 0 '+W+' '+H+'" id="svg" role="img" aria-label="UML class diagram: '+esc(v.label)+'" style="min-width:'+Math.min(W,1000)+'px"><g transform="translate('+shift+',0)">';
+    out+='<defs>'+
+      '<marker id="m-tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto"><path d="M1 1 L11 6 L1 11z" fill="#fff" stroke="#12303A" stroke-width="1.5"/></marker>'+
+      '<marker id="m-open" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M2 1.5 L10.5 6 L2 10.5" fill="none" stroke="#12303A" stroke-width="1.7"/></marker></defs>';
+
+    v.edges.forEach(function(e,i){
+      var A=B[e.a], C=B[e.b];
+      var p1=anchor(A,C.x+C.w/2,C.y+C.h/2), p2=anchor(C,A.x+A.w/2,A.y+A.h/2);
+      var mk = (e.t==='inherit'||e.t==='realize') ? 'url(#m-tri)' : 'url(#m-open)';
+      var dashed = (e.t==='realize'||e.t==='dep') ? ' dashed' : '';
+      out+='<g class="edge'+dashed+'" data-a="'+e.a+'" data-b="'+e.b+'">';
+      out+='<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" marker-end="'+mk+'"/>';
+      if(e.l) out+='<text x="'+((p1[0]+p2[0])/2).toFixed(1)+'" y="'+(((p1[1]+p2[1])/2)-6).toFixed(1)+'" text-anchor="middle">'+esc(e.l)+'</text>';
+      if(e.m1) out+='<text x="'+(p1[0]+(p2[0]-p1[0])*0.1).toFixed(1)+'" y="'+(p1[1]+(p2[1]-p1[1])*0.1-6).toFixed(1)+'" text-anchor="middle">'+e.m1+'</text>';
+      if(e.m2) out+='<text x="'+(p1[0]+(p2[0]-p1[0])*0.9).toFixed(1)+'" y="'+(p1[1]+(p2[1]-p1[1])*0.9-6).toFixed(1)+'" text-anchor="middle">'+e.m2+'</text>';
+      out+='</g>';
+    });
+
+    v.boxes.forEach(function(b){
+      var head=b.st?50:34, y=b.y;
+      out+='<g class="box" data-id="'+b.id+'" tabindex="0">';
+      out+='<rect class="frame" x="'+b.x+'" y="'+b.y+'" width="'+b.w+'" height="'+b.h+'" rx="6"/>';
+      out+='<path d="M'+b.x+' '+(b.y+head)+' V'+(b.y+6)+' a6 6 0 0 1 6 -6 H'+(b.x+b.w-6)+' a6 6 0 0 1 6 6 V'+(b.y+head)+' z" fill="'+TONE[b.tone]+'"/>';
+      if(b.st){
+        out+='<text class="st" x="'+(b.x+b.w/2)+'" y="'+(b.y+17)+'" text-anchor="middle">'+esc(b.st)+'</text>';
+        out+='<text class="name" x="'+(b.x+b.w/2)+'" y="'+(b.y+38)+'" text-anchor="middle">'+esc(b.name)+'</text>';
+      } else {
+        out+='<text class="name" x="'+(b.x+b.w/2)+'" y="'+(b.y+23)+'" text-anchor="middle">'+esc(b.name)+'</text>';
+      }
+      var cy=b.y+head;
+      (b.attrs||[]).forEach(function(t,i){ out+='<text class="m" x="'+(b.x+12)+'" y="'+(cy+19+i*LH-2)+'">'+esc(t)+'</text>'; });
+      if((b.attrs||[]).length){ cy+=b.attrs.length*LH+14; }
+      if((b.attrs||[]).length && (b.meths||[]).length){ out+='<line class="sep" x1="'+b.x+'" y1="'+(cy-7)+'" x2="'+(b.x+b.w)+'" y2="'+(cy-7)+'"/>'; }
+      (b.meths||[]).forEach(function(t,i){ out+='<text class="m" x="'+(b.x+12)+'" y="'+(cy+13+i*LH)+'">'+esc(t)+'</text>'; });
+      out+='</g>';
+    });
+    out+='</g></svg>';
+
+    var holder=document.querySelector('.scroll');
+    holder.innerHTML=out;
+    document.getElementById('note').textContent=v.note;
+    var co=document.getElementById('callout');
+    if(v.callout){ co.hidden=false; co.textContent=v.callout; } else { co.hidden=true; }
+
+    var svg=holder.querySelector('svg');
+    function hot(id){
+      svg.classList.add('dim');
+      svg.querySelectorAll('.box').forEach(function(x){ if(x.dataset.id===id) x.classList.add('hot'); });
+      svg.querySelectorAll('.edge').forEach(function(x){
+        if(x.dataset.a===id||x.dataset.b===id){
+          x.classList.add('hot');
+          svg.querySelectorAll('.box').forEach(function(bx){ if(bx.dataset.id===x.dataset.a||bx.dataset.id===x.dataset.b) bx.classList.add('hot'); });
+        }
+      });
+    }
+    function cool(){ svg.classList.remove('dim'); svg.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');}); }
+    svg.querySelectorAll('.box').forEach(function(x){
+      x.addEventListener('mouseenter',function(){hot(x.dataset.id);});
+      x.addEventListener('mouseleave',cool);
+      x.addEventListener('focus',function(){hot(x.dataset.id);});
+      x.addEventListener('blur',cool);
+    });
+  }
+
+  var tabs=document.getElementById('tabs');
+  Object.keys(VIEWS).forEach(function(k,i){
+    var b=document.createElement('button'); b.className='tab'; b.setAttribute('role','tab');
+    b.setAttribute('aria-selected', i===0?'true':'false'); b.textContent=VIEWS[k].label;
+    b.addEventListener('click',function(){
+      tabs.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected','false');});
+      b.setAttribute('aria-selected','true'); render(k);
+    });
+    tabs.appendChild(b);
+  });
+  render('domain');
+})();
+</script>
+</body>
+</html>

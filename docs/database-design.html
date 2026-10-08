@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoQR Attendance | Database Design</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --text: #162033;
+            --muted: #687386;
+            --border: #e4e8ef;
+            --blue: #356df3;
+            --blue-soft: #eef4ff;
+            --purple: #7657e8;
+            --purple-soft: #f2efff;
+            --green: #0fa37f;
+            --green-soft: #eafaf5;
+            --orange: #ef8b2c;
+            --orange-soft: #fff5e9;
+            --red: #e45367;
+            --red-soft: #fff0f2;
+            --shadow: 0 12px 35px rgba(20, 35, 70, 0.08);
+            --radius: 18px;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(53, 109, 243, 0.08), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(118, 87, 232, 0.07), transparent 25%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: min(1450px, 94%);
+            margin: auto;
+        }
+
+        /* HEADER */
+
+        .header {
+            margin: 28px 0 22px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            border-radius: 22px;
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #356df3, #7255e9);
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 25px;
+            box-shadow: 0 10px 22px rgba(53, 109, 243, 0.24);
+        }
+
+        .title h1 {
+            font-size: clamp(25px, 3vw, 36px);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .title p {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 9px;
+        }
+
+        .badge {
+            padding: 9px 13px;
+            border-radius: 999px;
+            background: #f8f9fc;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: #4d576b;
+        }
+
+        /* TOP METRICS */
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .metric {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            padding: 18px;
+            box-shadow: 0 8px 25px rgba(20, 35, 70, 0.05);
+        }
+
+        .metric .label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .metric .value {
+            margin-top: 6px;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        /* MAIN GRID */
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(340px, 0.9fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.93);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 22px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .panel-header p {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* ERD */
+
+        .erd {
+            position: relative;
+            min-height: 750px;
+            overflow: hidden;
+            background:
+                linear-gradient(rgba(53, 109, 243, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(53, 109, 243, 0.035) 1px, transparent 1px);
+            background-size: 30px 30px;
+            border: 1px solid #edf0f6;
+            border-radius: 16px;
+        }
+
+        .erd-title {
+            position: absolute;
+            top: 17px;
+            left: 18px;
+            z-index: 4;
+            padding: 9px 13px;
+            border-radius: 10px;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 5px 15px rgba(20, 35, 70, 0.06);
+            font-size: 12px;
+            font-weight: 700;
+            color: #506079;
+        }
+
+        .entity {
+            position: absolute;
+            background: white;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 28px rgba(20, 35, 70, 0.10);
+            width: 250px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.25s ease;
+            z-index: 3;
+        }
+
+        .entity:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 17px 34px rgba(20, 35, 70, 0.14);
+        }
+
+        .entity.active {
+            transform: translateY(-4px);
+            box-shadow: 0 0 0 3px rgba(53, 109, 243, 0.15), 0 17px 34px rgba(20, 35, 70, 0.14);
+        }
+
+        .entity-head {
+            padding: 14px 16px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .entity-head .name {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .entity-head .tag {
+            font-size: 10px;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 5px 7px;
+            border-radius: 999px;
+        }
+
+        .user .entity-head {
+            background: linear-gradient(135deg, #7657e8, #9278ef);
+        }
+
+        .event .entity-head {
+            background: linear-gradient(135deg, #356df3, #4f8df8);
+        }
+
+        .attendance .entity-head {
+            background: linear-gradient(135deg, #ef8b2c, #f5a84e);
+        }
+
+        .admin .entity-head {
+            background: linear-gradient(135deg, #e45367, #ef7181);
+        }
+
+        .student .entity-head {
+            background: linear-gradient(135deg, #0fa37f, #25ba95);
+        }
+
+        .columns {
+            padding: 10px 14px 13px;
+        }
+
+        .column {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 11px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .column:last-child {
+            border-bottom: none;
+        }
+
+        .column-name {
+            font-weight: 600;
+        }
+
+        .column-type {
+            color: #7a8495;
+            white-space: nowrap;
+        }
+
+        .key {
+            color: #356df3;
+            font-weight: 800;
+            font-size: 9px;
+            margin-left: 5px;
+        }
+
+        /* ENTITY POSITIONS */
+
+        .users-box {
+            left: 7%;
+            top: 19%;
+        }
+
+        .admin-box {
+            left: 8%;
+            top: 61%;
+        }
+
+        .student-box {
+            left: 39%;
+            top: 61%;
+        }
+
+        .event-box {
+            right: 7%;
+            top: 16%;
+        }
+
+        .attendance-box {
+            right: 7%;
+            top: 60%;
+        }
+
+        /* SVG CONNECTIONS */
+
+        .connections {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .connection {
+            fill: none;
+            stroke: #aab5c8;
+            stroke-width: 2;
+            stroke-dasharray: 7 6;
+            transition: 0.25s;
+        }
+
+        .connection.highlight {
+            stroke: #356df3;
+            stroke-width: 3;
+            stroke-dasharray: none;
+        }
+
+        .relationship-label {
+            position: absolute;
+            font-size: 10px;
+            font-weight: 700;
+            color: #69758b;
+            background: white;
+            border: 1px solid var(--border);
+            padding: 5px 8px;
+            border-radius: 999px;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        .creates-label {
+            left: 44%;
+            top: 17%;
+        }
+
+        .inheritance-label {
+            left: 23%;
+            top: 52%;
+        }
+
+        .event-attendance-label {
+            right: 30%;
+            top: 50%;
+        }
+
+        .student-attendance-label {
+            left: 53%;
+            top: 65%;
+        }
+
+        /* SIDE CONTENT */
+
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .entity-details {
+            min-height: 350px;
+        }
+
+        .detail-placeholder {
+            text-align: center;
+            padding: 45px 25px;
+            color: var(--muted);
+        }
+
+        .detail-placeholder .big-icon {
+            font-size: 35px;
+            margin-bottom: 14px;
+        }
+
+        .detail-card {
+            display: none;
+        }
+
+        .detail-card.active {
+            display: block;
+        }
+
+        .detail-card h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .detail-card .subtext {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .schema-row {
+            display: grid;
+            grid-template-columns: 1.2fr 0.85fr 1fr;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf0f5;
+            font-size: 11px;
+        }
+
+        .schema-row:last-child {
+            border-bottom: none;
+        }
+
+        .schema-header {
+            color: #8892a2;
+            font-weight: 700;
+            font-size: 10px;
+        }
+
+        .constraint {
+            color: #59667a;
+        }
+
+        /* RELATIONSHIP LIST */
+
+        .relationship {
+            padding: 13px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .relationship:last-child {
+            border-bottom: none;
+        }
+
+        .relationship-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .arrow {
+            color: var(--blue);
+        }
+
+        .relationship small {
+            display: block;
+            color: var(--muted);
+            margin-top: 4px;
+            font-size: 10px;
+        }
+
+        /* LOWER SECTION */
+
+        .lower-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .dictionary {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 580px;
+        }
+
+        th {
+            text-align: left;
+            background: #f8f9fc;
+            color: #687386;
+            font-size: 10px;
+            padding: 11px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 11px 10px;
+            border-bottom: 1px solid #edf0f5;
+            font-size: 11px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: #f1f4f8;
+            color: #5f6a7c;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        /* FEATURES */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .feature {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            background: #fbfcfe;
+        }
+
+        .feature h4 {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .feature p {
+            font-size: 10px;
+            line-height: 1.5;
+            color: var(--muted);
+        }
+
+        /* OVERVIEW */
+
+        .overview {
+            margin-top: 20px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .overview-box {
+            padding: 17px;
+            border-radius: 15px;
+            background: #fbfcfe;
+            border: 1px solid var(--border);
+        }
+
+        .overview-box h4 {
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .overview-box p {
+            font-size: 11px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        /* SCHEMA ACCORDION */
+
+        .accordion {
+            margin-top: 20px;
+        }
+
+        .accordion-item {
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .accordion-button {
+            width: 100%;
+            border: none;
+            background: white;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .accordion-button:hover {
+            background: #fafbfe;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-content-inner {
+            padding: 0 16px 15px;
+            color: var(--muted);
+            line-height: 1.65;
+            font-size: 11px;
+        }
+
+        .accordion-item.open .accordion-content {
+            max-height: 400px;
+        }
+
+        .plus {
+            font-size: 18px;
+            color: #758198;
+            transition: transform 0.3s;
+        }
+
+        .accordion-item.open .plus {
+            transform: rotate(45deg);
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            color: #8992a2;
+            font-size: 10px;
+            padding: 28px 0 35px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .lower-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .tech-stack {
+                justify-content: flex-start;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .erd {
+                min-height: 1050px;
+            }
+
+            .entity {
+                width: 230px;
+            }
+
+            .users-box {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .admin-box {
+                left: 8%;
+                top: 57%;
+            }
+
+            .student-box {
+                right: 8%;
+                left: auto;
+                top: 57%;
+            }
+
+            .event-box {
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 32%;
+            }
+
+            .attendance-box {
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 80%;
+            }
+
+            .side-column {
+                grid-template-columns: 1fr;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .entity {
+                width: 210px;
+            }
+
+            .admin-box,
+            .student-box {
+                position: relative;
+                left: auto;
+                right: auto;
+                top: auto;
+            }
+
+            .erd {
+                min-height: 1250px;
+                padding-top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-icon">⌁</div>
+
+            <div class="title">
+                <h1>GeoQR Attendance</h1>
+                <p>Database Design • ERD • Schema • Relationships • Security Data Model</p>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <span class="badge">MySQL</span>
+            <span class="badge">JPA / Hibernate</span>
+            <span class="badge">Spring Data JPA</span>
+            <span class="badge">Java 17</span>
+            <span class="badge">geo_attendance</span>
+        </div>
+    </header>
+
+    <!-- METRICS -->
+    <section class="metrics">
+
+        <div class="metric">
+            <div class="label">DATABASE</div>
+            <div class="value">MySQL</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">CORE TABLES</div>
+            <div class="value">3</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">USER ROLES</div>
+            <div class="value">2</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">INHERITANCE</div>
+            <div class="value">Single Table</div>
+        </div>
+
+    </section>
+
+    <!-- MAIN -->
+    <section class="main-grid">
+
+        <!-- ERD PANEL -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Entity Relationship Diagram</h2>
+                    <p>Click any entity to inspect its complete schema.</p>
+                </div>
+            </div>
+
+            <div class="erd">
+
+                <div class="erd-title">
+                    DATABASE RELATIONSHIP MODEL
+                </div>
+
+                <!-- SVG RELATIONSHIPS -->
+                <svg class="connections" viewBox="0 0 1000 750" preserveAspectRatio="none">
+
+                    <!-- USER -> EVENT -->
+                    <path id="lineUserEvent"
+                          class="connection"
+                          d="M 310 235 C 440 180, 560 175, 715 220" />
+
+                    <!-- USER -> ADMIN -->
+                    <path id="lineUserAdmin"
+                          class="connection"
+                          d="M 200 300 C 160 390, 170 455, 185 510" />
+
+                    <!-- USER -> STUDENT -->
+                    <path id="lineUserStudent"
+                          class="connection"
+                          d="M 300 300 C 370 390, 420 455, 470 510" />
+
+                    <!-- EVENT -> ATTENDANCE -->
+                    <path id="lineEventAttendance"
+                          class="connection"
+                          d="M 790 335 C 820 400, 820 470, 790 540" />
+
+                    <!-- STUDENT -> ATTENDANCE -->
+                    <path id="lineStudentAttendance"
+                          class="connection"
+                          d="M 530 585 C 620 600, 690 605, 760 600" />
+
+                </svg>
+
+                <!-- RELATIONSHIP LABELS -->
+                <div class="relationship-label creates-label">
+                    1 : N • creates
+                </div>
+
+                <div class="relationship-label inheritance-label">
+                    SINGLE-TABLE INHERITANCE
+                </div>
+
+                <div class="relationship-label event-attendance-label">
+                    1 : N • event
+                </div>
+
+                <div class="relationship-label student-attendance-label">
+                    1 : N • student
+                </div>
+
+
+                <!-- USERS -->
+                <div class="entity user users-box"
+                     data-entity="users"
+                     onclick="showEntity('users')">
+
+                    <div class="entity-head">
+                        <span class="name">users</span>
+                        <span class="tag">BASE ENTITY</span>
+                    </div>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <span class="column-name">id <span class="key">PK</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">name</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">email <span class="key">UNIQUE</span></span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">password</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">created_at</span>
+                            <span class="column-type">DATETIME</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">role <span class="key">DISC</span></span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- ADMIN -->
+                <div class="entity admin admin-box"
+                     data-entity="admin"
+                     onclick="showEntity('admin')">
+
+                    <div class="entity-head">
+                        <span class="name">admin</span>
+                        <span class="tag">ADMIN</span>
+                    </div>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <span class="column-name">id <span class="key">INHERITED</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">admin_code</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- STUDENT -->
+                <div class="entity student student-box"
+                     data-entity="student"
+                     onclick="showEntity('student')">
+
+                    <div class="entity-head">
+                        <span class="name">student</span>
+                        <span class="tag">STUDENT</span>
+                    </div>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <span class="column-name">id <span class="key">INHERITED</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">roll_number</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- EVENT -->
+                <div class="entity event event-box"
+                     data-entity="events"
+                     onclick="showEntity('events')">
+
+                    <div class="entity-head">
+                        <span class="name">events</span>
+                        <span class="tag">EVENT</span>
+                    </div>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <span class="column-name">id <span class="key">PK</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">title</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">latitude</span>
+                            <span class="column-type">DOUBLE</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">longitude</span>
+                            <span class="column-type">DOUBLE</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">radius_meters</span>
+                            <span class="column-type">INT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">event_date</span>
+                            <span class="column-type">DATE</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">start_time</span>
+                            <span class="column-type">TIME</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">end_time</span>
+                            <span class="column-type">TIME</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">created_by <span class="key">FK</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">created_at</span>
+                            <span class="column-type">DATETIME</span>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- ATTENDANCE -->
+                <div class="entity attendance attendance-box"
+                     data-entity="attendance"
+                     onclick="showEntity('attendance')">
+
+                    <div class="entity-head">
+                        <span class="name">attendance</span>
+                        <span class="tag">RECORD</span>
+                    </div>
+
+                    <div class="columns">
+
+                        <div class="column">
+                            <span class="column-name">id <span class="key">PK</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">event_id <span class="key">FK</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">student_id <span class="key">FK</span></span>
+                            <span class="column-type">BIGINT</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">device_id</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">student_lat</span>
+                            <span class="column-type">DOUBLE</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">student_long</span>
+                            <span class="column-type">DOUBLE</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">distance_meters</span>
+                            <span class="column-type">DOUBLE</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">status</span>
+                            <span class="column-type">VARCHAR</span>
+                        </div>
+
+                        <div class="column">
+                            <span class="column-name">timestamp</span>
+                            <span class="column-type">DATETIME</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- SIDE -->
+        <div class="side-column">
+
+            <!-- DETAILS -->
+            <div class="panel entity-details">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Entity Details</h2>
+                        <p>Select a table from the ERD.</p>
+                    </div>
+                </div>
+
+                <div id="detailPlaceholder" class="detail-placeholder">
+                    <div class="big-icon">⌘</div>
+                    <p>
+                        Click an entity to view its complete fields,
+                        data types, constraints and purpose.
+                    </p>
+                </div>
+
+
+                <!-- USERS DETAILS -->
+
+                <div class="detail-card" id="details-users">
+
+                    <h3>users</h3>
+
+                    <div class="subtext">
+                        Base entity using SINGLE_TABLE inheritance.
+                    </div>
+
+                    <div class="schema-row schema-header">
+                        <span>FIELD</span>
+                        <span>TYPE</span>
+                        <span>CONSTRAINT</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>id</span>
+                        <span>Long</span>
+                        <span>PK • Identity</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>name</span>
+                        <span>String</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>email</span>
+                        <span>String</span>
+                        <span>UNIQUE • NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>password</span>
+                        <span>String</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>created_at</span>
+                        <span>LocalDateTime</span>
+                        <span>Default now()</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>role</span>
+                        <span>String</span>
+                        <span>Discriminator</span>
+                    </div>
+
+                </div>
+
+
+                <!-- ADMIN -->
+
+                <div class="detail-card" id="details-admin">
+
+                    <h3>admin</h3>
+
+                    <div class="subtext">
+                        User subclass with discriminator value "ADMIN".
+                    </div>
+
+                    <div class="schema-row schema-header">
+                        <span>FIELD</span>
+                        <span>TYPE</span>
+                        <span>CONSTRAINT</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>id</span>
+                        <span>Long</span>
+                        <span>Inherited PK</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>adminCode</span>
+                        <span>String</span>
+                        <span>admin_code</span>
+                    </div>
+
+                </div>
+
+
+                <!-- STUDENT -->
+
+                <div class="detail-card" id="details-student">
+
+                    <h3>student</h3>
+
+                    <div class="subtext">
+                        User subclass with discriminator value "STUDENT".
+                    </div>
+
+                    <div class="schema-row schema-header">
+                        <span>FIELD</span>
+                        <span>TYPE</span>
+                        <span>CONSTRAINT</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>id</span>
+                        <span>Long</span>
+                        <span>Inherited PK</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>rollNumber</span>
+                        <span>String</span>
+                        <span>roll_number</span>
+                    </div>
+
+                </div>
+
+
+                <!-- EVENTS -->
+
+                <div class="detail-card" id="details-events">
+
+                    <h3>events</h3>
+
+                    <div class="subtext">
+                        Stores event metadata, geofencing and creator information.
+                    </div>
+
+                    <div class="schema-row schema-header">
+                        <span>FIELD</span>
+                        <span>TYPE</span>
+                        <span>CONSTRAINT</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>id</span>
+                        <span>Long</span>
+                        <span>PK • Identity</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>title</span>
+                        <span>String</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>description</span>
+                        <span>String</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>latitude</span>
+                        <span>Double</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>longitude</span>
+                        <span>Double</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>radius_meters</span>
+                        <span>Integer</span>
+                        <span>Default 50</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>event_date</span>
+                        <span>LocalDate</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>start_time</span>
+                        <span>LocalTime</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>end_time</span>
+                        <span>LocalTime</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>created_by</span>
+                        <span>User</span>
+                        <span>FK → users.id</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>created_at</span>
+                        <span>LocalDateTime</span>
+                        <span>Default now()</span>
+                    </div>
+
+                </div>
+
+
+                <!-- ATTENDANCE -->
+
+                <div class="detail-card" id="details-attendance">
+
+                    <h3>attendance</h3>
+
+                    <div class="subtext">
+                        Stores validated attendance submissions.
+                    </div>
+
+                    <div class="schema-row schema-header">
+                        <span>FIELD</span>
+                        <span>TYPE</span>
+                        <span>CONSTRAINT</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>id</span>
+                        <span>Long</span>
+                        <span>PK • Identity</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>event_id</span>
+                        <span>Long</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>student_id</span>
+                        <span>Long</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>device_id</span>
+                        <span>String</span>
+                        <span>NOT NULL</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>student_lat</span>
+                        <span>Double</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>student_long</span>
+                        <span>Double</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>distance_meters</span>
+                        <span>Double</span>
+                        <span>Nullable</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>status</span>
+                        <span>String</span>
+                        <span>Default PRESENT</span>
+                    </div>
+
+                    <div class="schema-row">
+                        <span>timestamp</span>
+                        <span>LocalDateTime</span>
+                        <span>Default now()</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RELATIONSHIPS -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Relationships</h2>
+                        <p>Logical and inherited database relationships.</p>
+                    </div>
+                </div>
+
+                <div class="relationship">
+                    <div class="relationship-main">
+                        users
+                        <span class="arrow">→</span>
+                        events
+                    </div>
+                    <small>1 : N • User creates multiple events</small>
+                </div>
+
+                <div class="relationship">
+                    <div class="relationship-main">
+                        users
+                        <span class="arrow">→</span>
+                        admin
+                    </div>
+                    <small>Single-table inheritance • ADMIN</small>
+                </div>
+
+                <div class="relationship">
+                    <div class="relationship-main">
+                        users
+                        <span class="arrow">→</span>
+                        student
+                    </div>
+                    <small>Single-table inheritance • STUDENT</small>
+                </div>
+
+                <div class="relationship">
+                    <div class="relationship-main">
+                        events
+                        <span class="arrow">→</span>
+                        attendance
+                    </div>
+                    <small>1 : N • event_id</small>
+                </div>
+
+                <div class="relationship">
+                    <div class="relationship-main">
+                        student
+                        <span class="arrow">→</span>
+                        attendance
+                    </div>
+                    <small>1 : N • student_id</small>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- LOWER GRID -->
+
+    <section class="lower-grid">
+
+        <!-- DATA DICTIONARY -->
+
+        <div class="panel dictionary">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Data Dictionary</h2>
+                    <p>Important fields used by the attendance system.</p>
+                </div>
+            </div>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>FIELD</th>
+                        <th>TABLE</th>
+                        <th>TYPE</th>
+                        <th>PURPOSE</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>latitude</td>
+                        <td>events</td>
+                        <td><span class="pill">DOUBLE</span></td>
+                        <td>Event location latitude for geo-fencing</td>
+                    </tr>
+
+                    <tr>
+                        <td>longitude</td>
+                        <td>events</td>
+                        <td><span class="pill">DOUBLE</span></td>
+                        <td>Event location longitude for geo-fencing</td>
+                    </tr>
+
+                    <tr>
+                        <td>radius_meters</td>
+                        <td>events</td>
+                        <td><span class="pill">INT</span></td>
+                        <td>Allowed attendance radius</td>
+                    </tr>
+
+                    <tr>
+                        <td>device_id</td>
+                        <td>attendance</td>
+                        <td><span class="pill">VARCHAR</span></td>
+                        <td>Unique device fingerprint for proxy detection</td>
+                    </tr>
+
+                    <tr>
+                        <td>student_lat</td>
+                        <td>attendance</td>
+                        <td><span class="pill">DOUBLE</span></td>
+                        <td>Student's location during attendance</td>
+                    </tr>
+
+                    <tr>
+                        <td>student_long</td>
+                        <td>attendance</td>
+                        <td><span class="pill">DOUBLE</span></td>
+                        <td>Student's longitude during attendance</td>
+                    </tr>
+
+                    <tr>
+                        <td>distance_meters</td>
+                        <td>attendance</td>
+                        <td><span class="pill">DOUBLE</span></td>
+                        <td>Distance between student and event</td>
+                    </tr>
+
+                    <tr>
+                        <td>event_id</td>
+                        <td>attendance</td>
+                        <td><span class="pill">BIGINT</span></td>
+                        <td>Identifies the event associated with attendance</td>
+                    </tr>
+
+                    <tr>
+                        <td>student_id</td>
+                        <td>attendance</td>
+                        <td><span class="pill">BIGINT</span></td>
+                        <td>Identifies the student making the attendance entry</td>
+                    </tr>
+
+                    <tr>
+                        <td>role</td>
+                        <td>users</td>
+                        <td><span class="pill">VARCHAR</span></td>
+                        <td>JPA discriminator for ADMIN / STUDENT</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- FEATURES -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Database Features</h2>
+                    <p>How the schema supports GeoQR Attendance.</p>
+                </div>
+            </div>
+
+            <div class="features">
+
+                <div class="feature">
+                    <h4>Single-Table Inheritance</h4>
+                    <p>
+                        Admin and Student are represented through the
+                        users table using the role discriminator.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Geo-Fencing</h4>
+                    <p>
+                        Event latitude, longitude and radius determine
+                        the allowed attendance zone.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Device Fingerprinting</h4>
+                    <p>
+                        device_id records the device associated with
+                        an attendance submission.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Proxy Detection</h4>
+                    <p>
+                        Location, distance and device information provide
+                        multiple signals for suspicious attendance detection.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Email Uniqueness</h4>
+                    <p>
+                        Each user email is constrained as unique to
+                        prevent duplicate user identities.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <h4>Foreign Key Integrity</h4>
+                    <p>
+                        Event creators are linked to users through
+                        created_by.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- DESIGN OVERVIEW -->
+
+    <section class="panel overview">
+
+        <div class="panel-header">
+            <div>
+                <h2>Database Design Overview</h2>
+                <p>Architecture decisions used in GeoQR Attendance.</p>
+            </div>
+        </div>
+
+        <div class="overview-grid">
+
+            <div class="overview-box">
+                <h4>01 — User Inheritance</h4>
+                <p>
+                    The application uses JPA SINGLE_TABLE inheritance.
+                    Admin and Student share the users table and are
+                    differentiated through the role discriminator column.
+                    This reduces table duplication and simplifies user management.
+                </p>
+            </div>
+
+            <div class="overview-box">
+                <h4>02 — Geo-Fencing</h4>
+                <p>
+                    Each event stores latitude, longitude and radius_meters.
+                    During attendance validation, the student's location can
+                    be compared against the event location and permitted radius.
+                </p>
+            </div>
+
+            <div class="overview-box">
+                <h4>03 — Attendance Validation</h4>
+                <p>
+                    Attendance stores event_id, student_id, device_id,
+                    coordinates, calculated distance, status and timestamp.
+                    This creates an auditable attendance record.
+                </p>
+            </div>
+
+            <div class="overview-box">
+                <h4>04 — Device Verification</h4>
+                <p>
+                    device_id provides an additional verification layer.
+                    Repeated or suspicious device usage can be investigated
+                    for possible proxy attendance.
+                </p>
+            </div>
+
+            <div class="overview-box">
+                <h4>05 — Logical Foreign Keys</h4>
+                <p>
+                    Attendance uses plain Long values for event_id and
+                    student_id rather than JPA object relationships.
+                    This keeps the entity lightweight and avoids unnecessary joins.
+                </p>
+            </div>
+
+            <div class="overview-box">
+                <h4>06 — ORM Strategy</h4>
+                <p>
+                    Spring Data JPA and Hibernate map Java entities to MySQL.
+                    The configured Hibernate DDL strategy is update, while an
+                    explicit schema can document the intended database structure.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONSTRAINTS -->
+
+    <section class="panel accordion">
+
+        <div class="panel-header">
+            <div>
+                <h2>Constraints & Architecture Notes</h2>
+                <p>Click each section to expand.</p>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+
+            <button class="accordion-button">
+                Primary Keys
+                <span class="plus">+</span>
+            </button>
+
+            <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    users.id, events.id and attendance.id are generated
+                    using GenerationType.IDENTITY and act as the primary
+                    identifiers for their respective records.
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="accordion-item">
+
+            <button class="accordion-button">
+                Foreign Keys & Relationships
+                <span class="plus">+</span>
+            </button>
+
+            <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    events.created_by references users.id.
+                    Attendance stores event_id and student_id as Long values,
+                    representing logical many-to-one relationships with Events
+                    and Students respectively.
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="accordion-item">
+
+            <button class="accordion-button">
+                Single-Table Inheritance
+                <span class="plus">+</span>
+            </button>
+
+            <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    User is the base entity. Admin uses discriminator value
+                    ADMIN and Student uses discriminator value STUDENT.
+                    Both share the same users table.
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="accordion-item">
+
+            <button class="accordion-button">
+                Security-Oriented Fields
+                <span class="plus">+</span>
+            </button>
+
+            <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    email provides unique user identification.
+                    password stores authentication information.
+                    role enables role-specific access control.
+                    device_id and geolocation fields support proxy-attendance detection.
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="accordion-item">
+
+            <button class="accordion-button">
+                Geolocation Data
+                <span class="plus">+</span>
+            </button>
+
+            <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    Events store the permitted geographical point through
+                    latitude and longitude. radius_meters specifies the
+                    allowed boundary. Attendance stores the student's latitude,
+                    longitude and calculated distance_meters for verification.
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <footer class="footer">
+        GeoQR Attendance • Database Design • MySQL + JPA/Hibernate
+    </footer>
+
+</div>
+
+
+<script>
+
+    /* ENTITY DETAIL SWITCHING */
+
+    function showEntity(entityName) {
+
+        document.querySelectorAll(".entity").forEach(entity => {
+            entity.classList.remove("active");
+        });
+
+        const selected = document.querySelector(
+            `[data-entity="${entityName}"]`
+        );
+
+        if (selected) {
+            selected.classList.add("active");
+        }
+
+        document.querySelectorAll(".detail-card").forEach(card => {
+            card.classList.remove("active");
+        });
+
+        const detail = document.getElementById(
+            "details-" + entityName
+        );
+
+        if (detail) {
+            detail.classList.add("active");
+            document.getElementById("detailPlaceholder").style.display = "none";
+        }
+
+        highlightConnections(entityName);
+    }
+
+
+    /* CONNECTION HIGHLIGHTING */
+
+    function highlightConnections(entityName) {
+
+        document.querySelectorAll(".connection").forEach(line => {
+            line.classList.remove("highlight");
+        });
+
+        if (entityName === "users") {
+            document.getElementById("lineUserEvent")
+                .classList.add("highlight");
+
+            document.getElementById("lineUserAdmin")
+                .classList.add("highlight");
+
+            document.getElementById("lineUserStudent")
+                .classList.add("highlight");
+        }
+
+        if (entityName === "admin") {
+            document.getElementById("lineUserAdmin")
+                .classList.add("highlight");
+        }
+
+        if (entityName === "student") {
+            document.getElementById("lineUserStudent")
+                .classList.add("highlight");
+
+            document.getElementById("lineStudentAttendance")
+                .classList.add("highlight");
+        }
+
+        if (entityName === "events") {
+            document.getElementById("lineUserEvent")
+                .classList.add("highlight");
+
+            document.getElementById("lineEventAttendance")
+                .classList.add("highlight");
+        }
+
+        if (entityName === "attendance") {
+            document.getElementById("lineEventAttendance")
+                .classList.add("highlight");
+
+            document.getElementById("lineStudentAttendance")
+                .classList.add("highlight");
+        }
+    }
+
+
+    /* ACCORDION */
+
+    document.querySelectorAll(".accordion-button").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const item = button.parentElement;
+
+            const isOpen = item.classList.contains("open");
+
+            document.querySelectorAll(".accordion-item")
+                .forEach(other => {
+                    other.classList.remove("open");
+                });
+
+            if (!isOpen) {
+                item.classList.add("open");
+            }
+
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

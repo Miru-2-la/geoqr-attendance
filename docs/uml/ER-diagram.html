@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQR Attend – ER Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E8EFEB; --paper-2:#DDE7E2; --ink:#12303A; --ink-2:#47616B;
+    --teal:#0B6E8A; --plum:#5B4B8A; --rose:#C2255C; --green:#1B8A57; --gold:#8A6A0B;
+    --line:rgba(18,48,58,.18);
+    --display:"Familjen Grotesk","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{margin:0; color:var(--ink); font-family:var(--display); font-size:16px; line-height:1.5; min-height:100vh;
+    background:
+      repeating-radial-gradient(circle at 92% 6%, transparent 0 26px, rgba(18,48,58,.055) 26px 27px),
+      repeating-radial-gradient(circle at 4% 96%, transparent 0 34px, rgba(18,48,58,.045) 34px 35px), var(--paper);}
+  header{padding:36px clamp(16px,4vw,56px) 8px; max-width:1400px; margin:0 auto}
+  h1{font-size:clamp(30px,4.6vw,52px); line-height:1.02; margin:0 0 10px; letter-spacing:-.02em; font-weight:700}
+  .lede{max-width:64ch; margin:0; color:var(--ink-2); font-size:18px}
+  main{max-width:1400px; margin:0 auto; padding:18px clamp(16px,4vw,56px) 56px; display:grid; grid-template-columns:1fr 340px; gap:22px; align-items:start}
+  @media (max-width:1000px){ main{grid-template-columns:1fr} }
+  .stage{background:rgba(255,255,255,.7); border:1.5px solid var(--line); border-radius:8px; padding:14px}
+  .scroll{overflow-x:auto}
+  svg{display:block; width:100%; height:auto; min-width:900px}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; font-size:14px; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .pill{font:700 11px var(--mono); padding:1px 6px; border-radius:3px; color:#fff}
+  .pk{background:var(--gold)} .fk{background:var(--teal)} .lk{background:var(--plum)}
+
+  .tbl .frame{fill:#fff; stroke:var(--ink); stroke-width:1.6}
+  .tbl .tname{font:700 16px var(--display); fill:#fff}
+  .tbl .tsub{font:400 11.5px var(--mono); fill:rgba(255,255,255,.85)}
+  .tbl .col{font:500 13px var(--mono); fill:var(--ink)}
+  .tbl .typ{font:400 12px var(--mono); fill:var(--ink-2)}
+  .tbl .row{fill:transparent}
+  .tbl .rowline{stroke:var(--line); stroke-width:1}
+  .tbl .bdg{font:700 10.5px var(--mono); fill:#fff}
+  .rel line{stroke:var(--ink); stroke-width:2}
+  .rel.logical line{stroke-dasharray:7 6; stroke:var(--plum)}
+  .rel text{font:700 13px var(--mono); fill:var(--ink); paint-order:stroke; stroke:#fff; stroke-width:5px; stroke-linejoin:round}
+  .rel .lbl{font:500 12px var(--mono)}
+  .tbl .col-hot{fill:rgba(244,219,74,.55)}
+
+  aside.side{display:flex; flex-direction:column; gap:12px}
+  .card{background:rgba(255,255,255,.7); border:1.5px solid var(--line); border-radius:8px; padding:14px 16px}
+  .card h2{font-size:18px; margin:0 0 6px}
+  .card p{margin:0 0 8px; color:var(--ink-2); font-size:15px}
+  .card ul{margin:0; padding-left:18px; font-size:15px; color:var(--ink-2)}
+  .card li{margin:3px 0}
+  pre{margin:8px 0 0; padding:12px; background:#12303A; color:#E8EFEB; border-radius:6px; font:400 12.5px/1.55 var(--mono); overflow-x:auto; white-space:pre-wrap}
+  .warn{border-left:5px solid var(--rose)}
+  button.copy{all:unset; cursor:pointer; margin-top:8px; padding:6px 12px; border-radius:5px; background:var(--ink); color:#fff; font-weight:700; font-size:13.5px}
+  button.copy:focus-visible{outline:3px solid var(--teal); outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Three tables, and the database only guards one of the links</h1>
+  <p class="lede">The MySQL schema Hibernate builds from the entity classes. The solid line is a real foreign key. The dashed lines are plain id columns that the database does not check.</p>
+</header>
+<main>
+  <section class="stage">
+    <div class="scroll"><svg id="svg" viewBox="0 0 1200 800" role="img" aria-label="Entity relationship diagram of users, events and attendance"></svg></div>
+    <div class="legend">
+      <span><span class="pill pk">PK</span> primary key</span>
+      <span><span class="pill fk">FK</span> enforced foreign key</span>
+      <span><span class="pill lk">ref</span> reference with no constraint</span>
+      <span>Hover a row to see which column it connects to.</span>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <h2>How the tables work together</h2>
+      <ul>
+        <li><b>users</b> holds admins and students in one table. The role column says which, and admin_code or roll_number is filled in for that role only.</li>
+        <li><b>events</b> is created by an admin (created_by) and stores the geo-fence: latitude, longitude and radius_meters.</li>
+        <li><b>attendance</b> is one row per successful scan, with the device and the measured distance.</li>
+      </ul>
+    </div>
+  </aside>
+</main>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg', RH=30, HEAD=52;
+  var T = {
+    events:{x:440,y:20,w:320,color:'#0B6E8A',sub:'JPA entity Event',cols:[
+      ['id','BIGINT','PK'],['title','VARCHAR(255)  not null',''],['description','VARCHAR(255)',''],
+      ['latitude','DOUBLE  not null',''],['longitude','DOUBLE  not null',''],['radius_meters','INT  default 50',''],
+      ['event_date','DATE',''],['start_time','TIME',''],['end_time','TIME',''],['created_by','BIGINT','FK'],['created_at','DATETIME','']]},
+    users:{x:10,y:450,w:320,color:'#12303A',sub:'JPA entity User / Admin / Student',cols:[
+      ['id','BIGINT','PK'],['role','VARCHAR  ADMIN | STUDENT',''],['name','VARCHAR(255)  not null',''],
+      ['email','VARCHAR(255)  unique',''],['password','VARCHAR(255)  not null',''],
+      ['admin_code','VARCHAR  admin only',''],['roll_number','VARCHAR  student only',''],['created_at','DATETIME','']]},
+    attendance:{x:870,y:450,w:320,color:'#5B4B8A',sub:'JPA entity Attendance',cols:[
+      ['id','BIGINT','PK'],['event_id','BIGINT  not null','ref'],['student_id','BIGINT  not null','ref'],
+      ['device_id','VARCHAR(255)  not null',''],['student_lat','DOUBLE',''],['student_long','DOUBLE',''],
+      ['distance_meters','DOUBLE',''],['status','VARCHAR  default PRESENT',''],['timestamp','DATETIME  not null','']]}
+  };
+  Object.keys(T).forEach(function(k){ var t=T[k]; t.h=HEAD+t.cols.length*RH+6; });
+
+  // relationships: from table/col -> to table/col
+  var R = [
+    {from:['events','created_by'], to:['users','id'],       logical:false, nFrom:'N', nTo:'1', label:'created by'},
+    {from:['attendance','event_id'], to:['events','id'],    logical:true,  nFrom:'N', nTo:'1', label:'for event'},
+    {from:['attendance','student_id'], to:['users','id'],   logical:true,  nFrom:'N', nTo:'1', label:'by student'}
+  ];
+
+  function colY(tn,cn){ var t=T[tn]; for(var i=0;i<t.cols.length;i++){ if(t.cols[i][0]===cn) return t.y+HEAD+i*RH+RH/2; } return t.y; }
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  var o='';
+  // relationships first (under tables)
+  R.forEach(function(r,i){
+    var A=T[r.from[0]], B=T[r.to[0]];
+    var ya=colY(r.from[0],r.from[1]), yb=colY(r.to[0],r.to[1]);
+    var xa, xb;
+    // choose facing sides
+    if(A.x+A.w < B.x){ xa=A.x+A.w; xb=B.x; }
+    else if(B.x+B.w < A.x){ xa=A.x; xb=B.x+B.w; }
+    else { xa=A.x+A.w/2; xb=B.x+B.w/2; }
+    // events -> users: events (top middle) to users (bottom left) overlap in x, so use side anchors
+    if(r.from[0]==='events'){ xa=A.x; xb=B.x+B.w; }
+    if(r.from[0]==='attendance' && r.to[0]==='events'){ xa=A.x; xb=B.x+B.w; }
+    if(r.from[0]==='attendance' && r.to[0]==='users'){ xa=A.x; xb=B.x+B.w; }
+    var mx=(xa+xb)/2, my=(ya+yb)/2;
+    o+='<g class="rel'+(r.logical?' logical':'')+'" data-r="'+i+'">';
+    o+='<path d="M'+xa+' '+ya+' C '+(xa+(xb-xa)*0.5)+' '+ya+', '+(xa+(xb-xa)*0.5)+' '+yb+', '+xb+' '+yb+'" fill="none" stroke="'+(r.logical?'#5B4B8A':'#12303A')+'" stroke-width="2" '+(r.logical?'stroke-dasharray="7 6"':'')+'/>';
+    var sa=xa<xb?-1:1; // text offset direction
+    o+='<text x="'+(xa+(xb>xa?14:-14))+'" y="'+(ya-8)+'" text-anchor="middle">'+r.nFrom+'</text>';
+    o+='<text x="'+(xb+(xb>xa?-14:14))+'" y="'+(yb-8)+'" text-anchor="middle">'+r.nTo+'</text>';
+    o+='<text class="lbl" x="'+mx+'" y="'+(my-8)+'" text-anchor="middle">'+esc(r.label)+'</text>';
+    o+='</g>';
+  });
+
+  Object.keys(T).forEach(function(k){
+    var t=T[k];
+    o+='<g class="tbl" data-t="'+k+'">';
+    o+='<rect class="frame" x="'+t.x+'" y="'+t.y+'" width="'+t.w+'" height="'+t.h+'" rx="8"/>';
+    o+='<path d="M'+t.x+' '+(t.y+HEAD)+' V'+(t.y+8)+' a8 8 0 0 1 8 -8 H'+(t.x+t.w-8)+' a8 8 0 0 1 8 8 V'+(t.y+HEAD)+' z" fill="'+t.color+'"/>';
+    o+='<text class="tname" x="'+(t.x+16)+'" y="'+(t.y+23)+'">'+k+'</text>';
+    o+='<text class="tsub" x="'+(t.x+16)+'" y="'+(t.y+41)+'">'+esc(t.sub)+'</text>';
+    t.cols.forEach(function(c,i){
+      var y=t.y+HEAD+i*RH;
+      o+='<g class="row" data-t="'+k+'" data-c="'+c[0]+'">';
+      o+='<rect class="rowbg" x="'+(t.x+2)+'" y="'+y+'" width="'+(t.w-4)+'" height="'+RH+'" fill="transparent"/>';
+      if(i>0) o+='<line class="rowline" x1="'+t.x+'" y1="'+y+'" x2="'+(t.x+t.w)+'" y2="'+y+'"/>';
+      if(c[2]){
+        var col = c[2]==='PK' ? '#8A6A0B' : (c[2]==='FK' ? '#0B6E8A' : '#5B4B8A');
+        o+='<rect x="'+(t.x+10)+'" y="'+(y+7)+'" width="28" height="16" rx="3" fill="'+col+'"/>';
+        o+='<text class="bdg" x="'+(t.x+24)+'" y="'+(y+19)+'" text-anchor="middle">'+c[2]+'</text>';
+      }
+      o+='<text class="col" x="'+(t.x+46)+'" y="'+(y+20)+'">'+esc(c[0])+'</text>';
+      o+='<text class="typ" x="'+(t.x+t.w-12)+'" y="'+(y+20)+'" text-anchor="end">'+esc(c[1])+'</text>';
+      o+='</g>';
+    });
+    o+='</g>';
+  });
+  document.getElementById('svg').innerHTML=o;
+
+  // hover: highlight related column rows
+  var svg=document.getElementById('svg');
+  function mark(tn,cn,on){
+    svg.querySelectorAll('.row').forEach(function(r){
+      if(r.dataset.t===tn && r.dataset.c===cn) r.querySelector('.rowbg').setAttribute('fill', on?'rgba(244,219,74,.6)':'transparent');
+    });
+  }
+  svg.querySelectorAll('.row').forEach(function(r){
+    var tn=r.dataset.t, cn=r.dataset.c;
+    function go(on){
+      mark(tn,cn,on);
+      R.forEach(function(rel){
+        if(rel.from[0]===tn && rel.from[1]===cn) mark(rel.to[0],rel.to[1],on);
+        if(rel.to[0]===tn && rel.to[1]===cn) mark(rel.from[0],rel.from[1],on);
+      });
+    }
+    r.addEventListener('mouseenter',function(){go(true);});
+    r.addEventListener('mouseleave',function(){go(false);});
+  });
+
+  document.getElementById('copy').addEventListener('click',function(){
+    var txt=document.getElementById('sql').textContent, b=this;
+    function done(){ b.textContent='Copied'; setTimeout(function(){b.textContent='Copy SQL';},1500); }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done,function(){}); }
+    else { var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); done();}catch(e){} document.body.removeChild(ta); }
+  });
+})();
+</script>
+</body>
+</html>
