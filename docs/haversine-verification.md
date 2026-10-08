@@ -14,7 +14,7 @@ GeoQR Attend must confirm that a student is physically near the event location. 
 
 ```
 a = sin^2(dLat / 2) + cos(lat1) * cos(lat2) * sin^2(dLon / 2)
-c = 2 * atan2( sqrt(a), sqrt(1 - a) )
+c = 2 * atan2( sqrt(a), sqrt(1 - a) )V
 d = R * c
 ```
 
