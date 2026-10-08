@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQR System Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a survey-sheet page. Three swimlanes (administrator, student, backend) read left to right;
+   the backend lane is the mechanism: four ordered gates, each with its own failure exit. */
+:root{
+  --bg:#EEF1EC; --surface:#F8FAF6; --ink:#16222B; --muted:#586870; --line:#98A7AD; --band:#E4E9E3;
+  --admin:#2F5DA8; --admin-t:#DCE6F6; --student:#1B7A66; --student-t:#D3ECE4;
+  --gate:#9A5F0C; --gate-t:#F6E6C6; --err:#B03A2E; --err-t:#F6DAD6; --ok:#237A3B; --ok-t:#D8EEDC;
+  --on:#FFFFFF; --contour:rgba(22,34,43,.07); --shadow:0 12px 32px rgba(22,34,43,.18);
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F171C; --surface:#16222A; --ink:#E6EEF0; --muted:#93A5AD; --line:#51656F; --band:#131E25;
+    --admin:#85AAEA; --admin-t:#1B2C47; --student:#62D0B6; --student-t:#143A33;
+    --gate:#EBB45C; --gate-t:#3A2C12; --err:#F2907F; --err-t:#40201B; --ok:#78D98E; --ok-t:#16361F;
+    --on:#0F171C; --contour:rgba(230,238,240,.06); --shadow:0 12px 32px rgba(0,0,0,.55); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F171C; --surface:#16222A; --ink:#E6EEF0; --muted:#93A5AD; --line:#51656F; --band:#131E25;
+  --admin:#85AAEA; --admin-t:#1B2C47; --student:#62D0B6; --student-t:#143A33;
+  --gate:#EBB45C; --gate-t:#3A2C12; --err:#F2907F; --err-t:#40201B; --ok:#78D98E; --ok-t:#16361F;
+  --on:#0F171C; --contour:rgba(230,238,240,.06); --shadow:0 12px 32px rgba(0,0,0,.55); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:15px; line-height:1.55;
+  padding-inline:16px; padding-block:28px 48px;
+  background-image:repeating-radial-gradient(circle at 92% -8%, transparent 0 46px, var(--contour) 47px 48px);
+  background-attachment:fixed;
+}
+.page{max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:20px}
+.eyebrow{margin:0; font:500 12px/1 var(--font-mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+h1{margin:8px 0 6px; font:700 clamp(30px,5vw,46px)/1.05 var(--font-display); letter-spacing:-.015em; text-wrap:balance}
+.lede{margin:0; max-width:62ch; color:var(--muted)}
+.coords{font:500 12px var(--font-mono); color:var(--muted)}
+
+.controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.controls .label{font:500 12px var(--font-mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-right:4px}
+.chip{
+  font:500 13px var(--font-body); color:var(--ink); background:var(--surface); border:1.5px solid var(--line);
+  border-radius:999px; padding:7px 14px; cursor:pointer; transition:background .15s,border-color .15s,transform .15s;
+}
+.chip:hover{border-color:var(--ink); transform:translateY(-1px)}
+.chip:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.chip.bad[aria-pressed="true"]{background:var(--err); border-color:var(--err); color:var(--on)}
+.chip.good[aria-pressed="true"]{background:var(--ok); border-color:var(--ok); color:var(--on)}
+.live{margin:0; min-height:1.5em; font:500 13px var(--font-mono); color:var(--muted)}
+
+.stagewrap{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:10px}
+.scroller{overflow-x:auto}
+figure{margin:0; min-width:880px}
+figcaption{font-size:13px; color:var(--muted); padding:8px 6px 2px; max-width:80ch}
+svg{display:block; width:100%; height:auto}
+.band{fill:var(--band); stroke:var(--line); stroke-width:1; stroke-dasharray:2 5}
+.lane-t{font:600 11px var(--font-mono); letter-spacing:.12em; fill:var(--ink); text-transform:uppercase}
+.lane-s{font:400 10.5px var(--font-mono); fill:var(--muted)}
+.hint{font:400 10.5px var(--font-mono); fill:var(--muted)}
+
+.n-admin{--c:var(--admin); --t:var(--admin-t)}
+.n-student{--c:var(--student); --t:var(--student-t)}
+.n-gate{--c:var(--gate); --t:var(--gate-t)}
+.n-err{--c:var(--err); --t:var(--err-t)}
+.n-ok{--c:var(--ok); --t:var(--ok-t)}
+.node{cursor:pointer; outline:none; transition:opacity .2s}
+.node .box{fill:var(--surface); stroke:var(--c); stroke-width:1.6; transition:fill .2s,stroke-width .2s}
+.node .t1{font:600 13px var(--font-body); fill:var(--ink); text-anchor:middle}
+.node .t2{font:400 10.5px var(--font-mono); fill:var(--muted); text-anchor:middle}
+.node.err .t1{font:600 11.5px var(--font-mono)}
+.node .num{fill:var(--c)}
+.node .numt{font:600 11px var(--font-mono); fill:var(--on); text-anchor:middle}
+.node:hover .box,.node:focus-visible .box{fill:var(--t); stroke-width:3}
+.node:focus-visible .box{stroke:var(--ink)}
+.node.on .box{fill:var(--c)}
+.node.on .t1,.node.on .t2{fill:var(--on)}
+.node.on .num{fill:var(--on)} .node.on .numt{fill:var(--c)}
+
+.edge path{fill:none; stroke:var(--line); stroke-width:1.7; transition:stroke .2s,stroke-width .2s}
+.edge.no path{stroke:var(--err)}
+.edge text{font:500 10.5px var(--font-mono); fill:var(--muted)}
+.edge.no text{fill:var(--err)}
+.edge.on path{stroke:var(--ink); stroke-width:3.2}
+.edge.on text{fill:var(--ink)}
+.edge{transition:opacity .2s}
+.mk-line{fill:var(--line)} .mk-err{fill:var(--err)} .mk-on{fill:var(--ink)}
+.stage.focus .node:not(.hl),.stage.focus .edge:not(.hl){opacity:.28}
+
+.pop{
+  position:absolute; z-index:5; width:330px; max-width:calc(100% - 16px); background:var(--surface); color:var(--ink);
+  border:1.5px solid var(--ink); border-radius:14px; box-shadow:var(--shadow); padding:16px 18px 14px;
+  animation:pop .16s ease-out;
+}
+@keyframes pop{from{opacity:0; transform:translateY(6px) scale(.98)} to{opacity:1; transform:none}}
+.pop h2{margin:0 24px 4px 0; font:700 18px/1.2 var(--font-display)}
+.pop .kind{font:500 11px var(--font-mono); letter-spacing:.1em; text-transform:uppercase; color:var(--c)}
+.pop p{margin:6px 0 10px; font-size:14px}
+.pop dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:13px}
+.pop dt{color:var(--muted); font:500 11px/1.9 var(--font-mono); text-transform:uppercase; letter-spacing:.06em}
+.pop dd{margin:0; font-family:var(--font-mono); font-size:12.5px; overflow-wrap:anywhere}
+.pop .x{position:absolute; top:8px; right:8px; width:30px; height:30px; border:0; background:transparent; color:var(--muted); font-size:20px; line-height:1; cursor:pointer; border-radius:8px}
+.pop .x:hover{background:var(--band); color:var(--ink)}
+.pop .x:focus-visible{outline:2px solid var(--ink)}
+
+.result{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:16px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0}
+.card h3{margin:0 0 8px; font:600 12px var(--font-mono); letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.outcome{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.http{font:600 13px var(--font-mono); padding:4px 10px; border-radius:6px; background:var(--ok); color:var(--on)}
+.http.err{background:var(--err)}
+.card p{margin:8px 0 0}
+pre{margin:0; font:400 12.5px/1.65 var(--font-mono); white-space:pre-wrap; overflow-wrap:anywhere}
+.k{color:var(--muted)} .sv{color:var(--ok)} .ev{color:var(--err)}
+.legend{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:7px}
+.legend i{width:14px; height:14px; border-radius:4px; border:2px solid; display:inline-block}
+@media (max-width:760px){
+  .result{grid-template-columns:minmax(0,1fr)}
+  .pop{position:fixed; left:8px; right:8px; bottom:8px; top:auto !important; width:auto; max-width:none}
+}
+@media (prefers-reduced-motion:reduce){ .pop{animation:none} .chip,.node,.edge{transition:none} }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <p class="eyebrow">GeoQR Attend &middot; request lifecycle</p>
+    <h1>System flow</h1>
+    <p class="lede">An attendance request travels from the administrator's event to a stored record, and the backend can stop it at four gates. Hover a step to see what it connects to, select it for the rule behind it, or trace a scenario.</p>
+  </header>
+
+  <div class="controls" role="group" aria-label="Trace a scenario">
+    <span class="label">Trace</span>
+    <button class="chip good" data-s="valid" aria-pressed="true">Valid scan</button>
+    <button class="chip bad" data-s="far" aria-pressed="false">500 m away</button>
+    <button class="chip bad" data-s="device" aria-pressed="false">Reused device</button>
+    <button class="chip bad" data-s="repeat" aria-pressed="false">Repeat scan</button>
+    <button class="chip bad" data-s="unknown" aria-pressed="false">Unknown event</button>
+  </div>
+  <p class="live" id="live" aria-live="polite"></p>
+
+  <div class="stagewrap" id="wrap">
+    <div class="scroller">
+      <figure>
+        <svg id="svg" viewBox="0 40 1260 688" role="group" aria-label="Swimlane diagram of the GeoQR Attend system flow"></svg>
+        <figcaption>The administrator and student lanes show the JavaFX client. The backend lane shows the order in which AttendanceService runs its checks. A request stops at the first check that fails.</figcaption>
+      </figure>
+    </div>
+    <div class="pop" id="pop" role="dialog" aria-labelledby="pop-title" hidden></div>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <div class="legend" aria-label="Legend">
+    <span><i style="border-color:var(--admin)"></i>Administrator step</span>
+    <span><i style="border-color:var(--student)"></i>Student step</span>
+    <span><i style="border-color:var(--gate)"></i>Backend check</span>
+    <span><i style="border-color:var(--err)"></i>Failure response</span>
+    <span><i style="border-color:var(--ok)"></i>Stored record</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  function el(tag,attrs,parent){var n=document.createElementNS(NS,tag);for(var k in attrs){n.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(n);return n;}
+  var svg=document.getElementById('svg'), wrap=document.getElementById('wrap'), pop=document.getElementById('pop');
+  var live=document.getElementById('live'), result=document.getElementById('result');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var W=144,H=64,COL=[230,462,694,926,1158];
+  var Y={admin:118,student:278,gate:468,err:618};
+
+  /* ---------- content ---------- */
+  var N={
+    a1:{x:0,y:'admin',k:'n-admin',t:'Log in',s:'ADMIN role',kind:'Administrator step',
+      d:'The JavaFX client sends the administrator\'s email, password and role to the backend.',
+      r:[['Request','POST /api/auth/login'],['Role','ADMIN'],['On failure','404 NOT_FOUND, "Invalid email or password"']]},
+    a2:{x:1,y:'admin',k:'n-admin',t:'Create event',s:'place + radius',kind:'Administrator step',
+      d:'The administrator enters the event details and where it takes place.',
+      r:[['Fields','title, date, start and end time, latitude, longitude, radius'],['Default radius','50 meters']]},
+    a3:{x:2,y:'admin',k:'n-admin',t:'Event stored',s:'returns event ID',kind:'Backend response',
+      d:'The backend saves the event and returns its identifier to the client.',
+      r:[['Table','events'],['Radius column','radius_meters'],['Returns','event identifier']]},
+    a4:{x:3,y:'admin',k:'n-admin',t:'Generate QR',s:'from event ID',kind:'Administrator step',
+      d:'The client turns the event identifier into a QR code.',
+      r:[['Payload','event identifier'],['Built by','JavaFX client']]},
+    a5:{x:4,y:'admin',k:'n-admin',t:'Show to students',s:'QR on screen',kind:'Administrator step',
+      d:'The administrator displays the QR code so students can find the event identifier.',
+      r:[['Next','students enter the event ID']]},
+    s1:{x:0,y:'student',k:'n-student',t:'Log in',s:'STUDENT role',kind:'Student step',
+      d:'The student signs in with the STUDENT role through the same login endpoint.',
+      r:[['Request','POST /api/auth/login'],['Role','STUDENT'],['Wrong role','404 NOT_FOUND, "Invalid role selected"']]},
+    s2:{x:1,y:'student',k:'n-student',t:'Enter event ID',s:'typed in client',kind:'Student step',
+      d:'The student provides the event identifier shown by the administrator.',
+      r:[['Input','event identifier']]},
+    s3:{x:2,y:'student',k:'n-student',t:'Collect data',s:'GPS + device ID',kind:'Student step',
+      d:'The client gathers the student\'s coordinates and the identifier of the device in use.',
+      r:[['Fields','studentLat, studentLong, deviceId'],['Trust note','The backend measures distance from the coordinates it receives']]},
+    s4:{x:3,y:'student',k:'n-student',t:'Send scan',s:'POST /api/scan',kind:'Student step',
+      d:'The client posts one JSON body to the backend.',
+      r:[['Request','POST /api/scan'],['Body','eventId, studentId, studentLat, studentLong, deviceId']]},
+    s5:{x:4,y:'student',k:'n-student',t:'Show result',s:'success or error',kind:'Student step',
+      d:'The client shows the backend\'s answer. Every error has the same shape, so one handler covers all of them.',
+      r:[['Error shape','status, message, errorCode']]},
+    g1:{x:0,y:'gate',k:'n-gate',n:1,t:'Event exists?',s:'NOT_FOUND',kind:'Check 1 of 4',
+      d:'The backend looks up the event identifier from the request.',
+      r:[['Exception','ResourceNotFoundException'],['Code','NOT_FOUND, HTTP 404'],['Tested','event 99999 was rejected']]},
+    g2:{x:1,y:'gate',k:'n-gate',n:2,t:'Not marked yet?',s:'student check',kind:'Check 2 of 4',
+      d:'The backend checks whether this student already has a record for the event. This runs before the location is measured.',
+      r:[['Query','existsByEventIdAndStudentId'],['Exception','ProxyAttendanceException'],['Code','PROXY_ATTENDANCE, HTTP 400']]},
+    g3:{x:2,y:'gate',k:'n-gate',n:3,t:'Within radius?',s:'Haversine',kind:'Check 3 of 4',
+      d:'The backend computes the distance between the student and the event and compares it with the event radius.',
+      r:[['Method','GeoUtils.getDistance'],['Earth radius','6,371,000 m'],['Rule','distance > radius is rejected'],['Exception','LocationMismatchException'],['Code','LOCATION_MISMATCH, HTTP 400']]},
+    g4:{x:3,y:'gate',k:'n-gate',n:4,t:'Device unused?',s:'per event',kind:'Check 4 of 4',
+      d:'The backend checks whether this device has already been used for this event by another account.',
+      r:[['Query','existsByEventIdAndDeviceId'],['Index','idx_event_device'],['Exception','ProxyAttendanceException'],['Code','PROXY_ATTENDANCE, HTTP 400']]},
+    ok:{x:4,y:'gate',k:'n-ok',t:'Store record',s:'attendance table',kind:'Success',
+      d:'All four checks passed. The backend stores the attendance record and returns SUCCESS.',
+      r:[['Table','attendance'],['Saved','event, student, device, coordinates, distance, status, timestamp'],['Response','HTTP 200, status SUCCESS']]},
+    e1:{x:0,y:'err',k:'n-err',e:1,t:'NOT_FOUND',s:'HTTP 404',kind:'Failure response',
+      d:'The event identifier does not exist.',
+      r:[['Exception','ResourceNotFoundException'],['Message','Invalid QR code - Event not found']]},
+    e2:{x:1,y:'err',k:'n-err',e:1,t:'PROXY_ATTENDANCE',s:'HTTP 400 \u00b7 repeat',kind:'Failure response',
+      d:'The same student has already marked attendance for this event.',
+      r:[['Exception','ProxyAttendanceException'],['Message','You have already marked attendance for this event']]},
+    e3:{x:2,y:'err',k:'n-err',e:1,t:'LOCATION_MISMATCH',s:'HTTP 400',kind:'Failure response',
+      d:'The student is farther from the event than the allowed radius.',
+      r:[['Exception','LocationMismatchException'],['Message','You are 500m away from the event location. Maximum allowed: 50m']]},
+    e4:{x:3,y:'err',k:'n-err',e:1,t:'PROXY_ATTENDANCE',s:'HTTP 400 \u00b7 device',kind:'Failure response',
+      d:'This device was already used for the event by another account.',
+      r:[['Exception','ProxyAttendanceException'],['Message','Proxy detected! This device has already marked attendance for this event with another account.']]}
+  };
+
+  var E=[
+    ['a1-a2','a1','a2','','token'],['a2-a3','a2','a3','','save'],['a3-a4','a3','a4','','event ID'],['a4-a5','a4','a5','',''],
+    ['s1-s2','s1','s2','','token'],['s2-s3','s2','s3','','event ID'],['s3-s4','s3','s4','','JSON'],
+    ['s4-g1','s4','g1','bus','POST /api/scan'],
+    ['g1-g2','g1','g2','','yes'],['g2-g3','g2','g3','','yes'],['g3-g4','g3','g4','','yes'],['g4-ok','g4','ok','','yes'],
+    ['g1-e1','g1','e1','no','no'],['g2-e2','g2','e2','no','no'],['g3-e3','g3','e3','no','no'],['g4-e4','g4','e4','no','no'],
+    ['ok-s5','ok','s5','up','response']
+  ];
+
+  var SC={
+    valid:{path:['s1','s2','s3','s4','g1','g2','g3','g4','ok','s5'],http:200,
+      what:'Every check passed, so the record is stored and the client shows success.',
+      json:[['status','"SUCCESS"','sv']]},
+    far:{path:['s1','s2','s3','s4','g1','g2','g3','e3','s5'],http:400,
+      what:'The event exists and the student has not scanned before, but the distance is above the 50 m radius, so the request stops at check 3.',
+      json:[['status','"ERROR"','ev'],['message','"You are 500m away from the event location. Maximum allowed: 50m"','ev'],['errorCode','"LOCATION_MISMATCH"','ev']]},
+    device:{path:['s1','s2','s3','s4','g1','g2','g3','g4','e4','s5'],http:400,
+      what:'Another student already used this device for the event. The location is fine, so the request reaches check 4 before it is rejected.',
+      json:[['status','"ERROR"','ev'],['message','"Proxy detected! This device has already marked attendance for this event with another account."','ev'],['errorCode','"PROXY_ATTENDANCE"','ev']]},
+    repeat:{path:['s1','s2','s3','s4','g1','g2','e2','s5'],http:400,
+      what:'This student already has a record. The request stops at check 2, so the location is never measured.',
+      json:[['status','"ERROR"','ev'],['message','"You have already marked attendance for this event"','ev'],['errorCode','"PROXY_ATTENDANCE"','ev']]},
+    unknown:{path:['s1','s2','s3','s4','g1','e1','s5'],http:404,
+      what:'The event identifier does not exist, so the request stops at the first check.',
+      json:[['status','"ERROR"','ev'],['message','"Invalid QR code - Event not found"','ev'],['errorCode','"NOT_FOUND"','ev']]}
+  };
+
+  /* ---------- drawing ---------- */
+  var defs=el('defs',{},svg);
+  [['ar-line','mk-line'],['ar-err','mk-err'],['ar-on','mk-on']].forEach(function(m){
+    var mk=el('marker',{id:m[0],viewBox:'0 0 10 10',refX:'9',refY:'5',markerUnits:'userSpaceOnUse',markerWidth:'10',markerHeight:'10',orient:'auto-start-reverse'},defs);
+    el('path',{d:'M0 0 L10 5 L0 10 z','class':m[1]},mk);
+  });
+  var stage=el('g',{'class':'stage',id:'stage'},svg);
+
+  function band(y,h,title,sub){
+    el('rect',{x:8,y:y,width:1244,height:h,rx:14,'class':'band'},stage);
+    var t=el('text',{x:26,y:y+h/2-4,'class':'lane-t'},stage);t.textContent=title;
+    var s=el('text',{x:26,y:y+h/2+14,'class':'lane-s'},stage);s.textContent=sub;
+  }
+  band(54,128,'Administrator','JavaFX client');
+  band(214,128,'Student','JavaFX client');
+  band(376,316,'Backend','Spring Boot + MySQL');
+  var h1=el('text',{x:158,y:408,'class':'hint'},stage);h1.textContent='AttendanceService runs these checks in order and stops at the first failure';
+  var h2=el('text',{x:630,y:712,'class':'hint','text-anchor':'middle'},stage);
+  h2.textContent='GlobalExceptionHandler returns every failure as { status, message, errorCode }';
+
+  var pos={}; for(var id in N){var n=N[id];pos[id]={x:COL[n.x],y:Y[n.y]};}
+
+  var edgeEls={}, nodeEls={}, adj={};
+  E.forEach(function(e){
+    var f=pos[e[1]],t=pos[e[2]],d,lx,ly,anchor='middle';
+    if(e[3]==='bus'){d='M'+f.x+' '+(f.y+H/2)+' V358 H'+t.x+' V'+(t.y-H/2); lx=(f.x+t.x)/2; ly=350;}
+    else if(e[3]==='up'){d='M'+f.x+' '+(f.y-H/2)+' V'+(t.y+H/2+1); lx=f.x-10; ly=(f.y+t.y)/2+4; anchor='end';}
+    else if(e[3]==='no'){d='M'+f.x+' '+(f.y+H/2)+' V'+(t.y-H/2-1); lx=f.x+9; ly=(f.y+t.y)/2+4; anchor='start';}
+    else{d='M'+(f.x+W/2)+' '+f.y+' H'+(t.x-W/2-1); lx=(f.x+t.x)/2; ly=f.y-8;}
+    var g=el('g',{'class':'edge'+(e[3]==='no'?' no':''),'data-id':e[0]},stage);
+    var p=el('path',{d:d,'marker-end':'url(#'+(e[3]==='no'?'ar-err':'ar-line')+')'},g);
+    p._m=(e[3]==='no'?'ar-err':'ar-line');
+    if(e[4]){var tx=el('text',{x:lx,y:ly,'text-anchor':anchor},g);tx.textContent=e[4];}
+    edgeEls[e[0]]=g;
+    (adj[e[1]]=adj[e[1]]||[]).push([e[0],e[2]]);(adj[e[2]]=adj[e[2]]||[]).push([e[0],e[1]]);
+  });
+
+  Object.keys(N).forEach(function(id){
+    var n=N[id],p=pos[id];
+    var g=el('g',{'class':'node '+n.k+(n.e?' err':''),'data-id':id,tabindex:'0',role:'button','aria-label':n.t+'. '+n.s+'. Select for details.'},stage);
+    el('rect',{'class':'box',x:p.x-W/2,y:p.y-H/2,width:W,height:H,rx:(n.k==='n-gate'?5:12)},g);
+    var a=el('text',{'class':'t1',x:p.x,y:p.y-3},g);a.textContent=n.t;
+    var b=el('text',{'class':'t2',x:p.x,y:p.y+16},g);b.textContent=n.s;
+    if(n.n){el('circle',{'class':'num',cx:p.x-W/2,cy:p.y-H/2,r:11},g);var nt=el('text',{'class':'numt',x:p.x-W/2,y:p.y-H/2+4},g);nt.textContent=n.n;}
+    nodeEls[id]=g;
+  });
+
+  /* ---------- hover focus ---------- */
+  var scenarioRunning=false;
+  function focusOn(id){
+    stage.setAttribute('class','stage focus');
+    Object.keys(nodeEls).forEach(function(k){nodeEls[k].classList.remove('hl');});
+    Object.keys(edgeEls).forEach(function(k){edgeEls[k].classList.remove('hl');});
+    nodeEls[id].classList.add('hl');
+    (adj[id]||[]).forEach(function(a){edgeEls[a[0]].classList.add('hl');nodeEls[a[1]].classList.add('hl');});
+  }
+  function focusOff(){stage.setAttribute('class','stage');}
+  Object.keys(nodeEls).forEach(function(id){
+    var g=nodeEls[id];
+    g.addEventListener('mouseenter',function(){focusOn(id);});
+    g.addEventListener('mouseleave',focusOff);
+    g.addEventListener('focus',function(){focusOn(id);});
+    g.addEventListener('blur',focusOff);
+    g.addEventListener('click',function(ev){ev.stopPropagation();openPop(id,g);});
+    g.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();openPop(id,g);}});
+  });
+
+  /* ---------- popover ---------- */
+  var popFor=null;
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function openPop(id,node){
+    var n=N[id]; popFor=id;
+    var colorVar={'n-admin':'--admin','n-student':'--student','n-gate':'--gate','n-err':'--err','n-ok':'--ok'}[n.k];
+    var rows=n.r.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>';}).join('');
+    pop.style.setProperty('--c','var('+colorVar+')');
+    pop.innerHTML='<button class="x" aria-label="Close details">&times;</button><div class="kind">'+esc(n.kind)+'</div><h2 id="pop-title">'+esc(n.t)+'</h2><p>'+esc(n.d)+'</p><dl>'+rows+'</dl>';
+    pop.hidden=false;
+    pop.querySelector('.x').addEventListener('click',function(ev){ev.stopPropagation();closePop(true);});
+    if(window.innerWidth>760){
+      var wr=wrap.getBoundingClientRect(), nr=node.getBoundingClientRect();
+      var pw=pop.offsetWidth, ph=pop.offsetHeight;
+      var left=nr.left-wr.left+nr.width/2-pw/2; left=Math.max(8,Math.min(left,wr.width-pw-8));
+      var top=nr.bottom-wr.top+10;
+      if(top+ph>wr.height-4){top=nr.top-wr.top-ph-10;}
+      top=Math.max(8,top);
+      pop.style.left=left+'px'; pop.style.top=top+'px';
+    }
+  }
+  function closePop(refocus){
+    if(pop.hidden)return; pop.hidden=true;
+    if(refocus&&popFor&&nodeEls[popFor]){nodeEls[popFor].focus({preventScroll:true});}
+    popFor=null;
+  }
+  document.addEventListener('click',function(ev){if(!pop.hidden&&!pop.contains(ev.target))closePop(false);});
+  document.addEventListener('keydown',function(ev){if(ev.key==='Escape')closePop(true);});
+
+  /* ---------- scenarios ---------- */
+  var timers=[];
+  function clearTrace(){
+    timers.forEach(clearTimeout);timers=[];
+    Object.keys(nodeEls).forEach(function(k){nodeEls[k].classList.remove('on');});
+    Object.keys(edgeEls).forEach(function(k){
+      var g=edgeEls[k];g.classList.remove('on');
+      var p=g.querySelector('path');p.setAttribute('marker-end','url(#'+p._m+')');
+    });
+  }
+  function activate(path,i){
+    var id=path[i];nodeEls[id].classList.add('on');
+    if(i>0){
+      var key=path[i-1]+'-'+id,g=edgeEls[key];
+      if(g){g.classList.add('on');g.querySelector('path').setAttribute('marker-end','url(#ar-on)');}
+    }
+  }
+  function renderResult(key){
+    var s=SC[key],ok=s.http===200;
+    var lines=s.json.map(function(r){return '  <span class="k">"'+r[0]+'"</span>: <span class="'+r[2]+'">'+esc(r[1])+'</span>';}).join(',\n');
+    if(ok){lines+=',\n  <span class="k">...</span>';}
+    var title={valid:'Valid scan',far:'Student 500 m away',device:'Same device, second student',repeat:'Same student scans twice',unknown:'Event 99999'}[key];
+    result.innerHTML='<div class="card"><h3>Outcome</h3><div class="outcome"><span class="http'+(ok?'':' err')+'">HTTP '+s.http+'</span><strong>'+esc(title)+'</strong></div><p>'+esc(s.what)+'</p></div>'+
+      '<div class="card"><h3>Response to the client</h3><pre>{\n'+lines+'\n}</pre></div>';
+  }
+  function run(key,instant){
+    clearTrace();closePop(false);
+    var s=SC[key];
+    document.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.s===key?'true':'false');});
+    var total=s.path.length;
+    if(instant||reduce){
+      s.path.forEach(function(_,i){activate(s.path,i);});
+      live.textContent='';renderResult(key);return;
+    }
+    result.innerHTML='<div class="card"><h3>Outcome</h3><p>Tracing the request&hellip;</p></div><div class="card"><h3>Response to the client</h3><pre>&nbsp;</pre></div>';
+    s.path.forEach(function(id,i){
+      timers.push(setTimeout(function(){
+        activate(s.path,i);
+        live.textContent='Step '+(i+1)+' of '+total+' \u00b7 '+N[id].t+' ('+N[id].s+')';
+        if(i===total-1){live.textContent='Finished \u00b7 '+total+' steps';renderResult(key);}
+      },i*560));
+    });
+  }
+  document.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){run(c.dataset.s,false);});});
+
+  run('valid',true);
+})();
+</script>
+</body>
+</html>
