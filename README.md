@@ -30,7 +30,7 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\- \*\*Java 17\*\*
+\- Java 17
 
 \- Maven 3.8+
 
