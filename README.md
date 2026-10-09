@@ -14,7 +14,7 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\- Mirudhula (Backend) - Spring Boot, MySQL, OOP, Analytics
+\- Mirudhula (Backend) - Spring Boot, MySQL, OOP, Analytics and Exception Handling
 
 \- Grithanyaa (Frontend) - HTML/CSS/JS, QR, Dashboard
 
