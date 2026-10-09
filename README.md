@@ -18,7 +18,7 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 \- Grithanyaa (Frontend) - HTML/CSS/JS, QR, Dashboard
 
-\- V.R.Eshanika - (Security \& Documentation)\*\* - Haversine, Exceptions, UML, Testing
+\- V.R.Eshanika (Security & Documentation) - Haversine, UML, Testing
 
 
 
