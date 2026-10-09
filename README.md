@@ -44,11 +44,11 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\## Backend Setup (Mirudhula's part)
+\## Backend Setup
 
 
 
-\### 1. Clone the repository
+Clone the repository
 
 ```bash
 
