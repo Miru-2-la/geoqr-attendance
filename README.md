@@ -36,7 +36,7 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 \- MySQL 8.0+
 
-\- Node.js (optional, for frontend)
+\- Node.js (frontend)
 
 
 
