@@ -14,11 +14,11 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\- \*\*Mirudhula (Backend)\*\* - Spring Boot, MySQL, OOP, Analytics
+\- Mirudhula (Backend) - Spring Boot, MySQL, OOP, Analytics
 
-\- \*\*Grithanyaa (Frontend)\*\* - HTML/CSS/JS, QR, Dashboard
+\- Grithanyaa (Frontend) - HTML/CSS/JS, QR, Dashboard
 
-\- \*\*V.R.Eshanika (Security \& Documentation)\*\* - Haversine, Exceptions, UML, Testing
+\- V.R.Eshanika - (Security \& Documentation)\*\* - Haversine, Exceptions, UML, Testing
 
 
 
