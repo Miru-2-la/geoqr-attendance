@@ -7,17 +7,20 @@ import com.geoqr.attendance.model.Admin;
 import com.geoqr.attendance.model.Student;
 import com.geoqr.attendance.model.User;
 import com.geoqr.attendance.repository.UserRepository;
+import com.geoqr.attendance.security.JwtService;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -31,7 +34,10 @@ public class AuthService {
             throw new ResourceNotFoundException("Invalid role selected");
         }
 
-        String token = UUID.randomUUID().toString();
+        String token = jwtService.generateAccessToken(
+                String.valueOf(user.getId()),
+                Map.of("email", user.getEmail(), "role", actualRole)
+        );
 
         LoginResponse.UserDTO userDTO = new LoginResponse.UserDTO();
         userDTO.setId(user.getId());
