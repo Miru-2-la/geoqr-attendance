@@ -1,4 +1,4 @@
-\# GeoQR Attend - Secure Location-Based Attendance Management System
+# GeoQR Attend - Secure Location-Based Attendance Management System
 
 
 
@@ -14,11 +14,11 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\- \*\*Mirudhula (Backend)\*\* - Spring Boot, MySQL, OOP, Analytics
+\- Mirudhula (Backend) - Spring Boot, MySQL, OOP, Analytics and Exception Handling
 
-\- \*\*Grithey (Frontend)\*\* - HTML/CSS/JS, QR, Dashboard
+\- Grithanyaa (Frontend) - HTML/CSS/JS, QR, Dashboard
 
-\- \*\*Eshanika (Logic \& Documentation)\*\* - Haversine, Exceptions, UML, Testing
+\- V.R.Eshanika (Security & Documentation) - Haversine, UML, Testing
 
 
 
@@ -30,13 +30,13 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\- \*\*Java 17\*\* (NOT Java 21 or 25 - Lombok will crash)
+\- Java 17
 
 \- Maven 3.8+
 
 \- MySQL 8.0+
 
-\- Node.js (optional, for frontend)
+\- Node.js (frontend)
 
 
 
@@ -44,11 +44,11 @@ A full-stack attendance system using QR codes, GPS geo-fencing, and device finge
 
 
 
-\## Backend Setup (Mirudhula's part)
+\## Backend Setup
 
 
 
-\### 1. Clone the repository
+Clone the repository
 
 ```bash
 
