@@ -216,15 +216,16 @@ export async function renderStudentScan(container) {
         resultBox.textContent = "";
 
         try {
-            const deviceId = await getDeviceId();
-             const payload = {
+                        const deviceId = await getDeviceId();
+            
+            const payload = {
                 eventId: Number(eventId),
                 studentLat: locationData.latitude,
                 studentLong: locationData.longitude,
-                studentAccuracy: locationData.accuracy,        // Required by SEC-015
-                locationTimestamp: locationData.timestamp,     // Required by SEC-015
+                studentAccuracy: locationData.accuracy,
+                locationTimestamp: locationData.timestamp,
                 deviceId: deviceId,
-                qrToken: qrToken                                // Required by SEC-017
+                qrToken: qrToken 
             };
 
             const attendance = await scanAttendance(payload);

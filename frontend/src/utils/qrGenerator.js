@@ -4,18 +4,15 @@ export function qrPayload(eventId, token) {
 
 export function renderQr(container, eventId, token) {
     if (!container) return;
-    
     container.innerHTML = "";
-
     if (typeof QRCode === "undefined") {
         const p = document.createElement("p");
         p.textContent = "QR library not loaded. Use manual event ID.";
         container.appendChild(p);
         return;
     }
-
     new QRCode(container, {
-        text: qrPayload(eventId, token), // 👈 Now passes the token
+        text: qrPayload(eventId, token),
         width: 220,
         height: 220,
         colorDark: "#111111",
@@ -29,19 +26,10 @@ export function downloadQr(container, filename = "event-qr.png") {
     const canvas = container.querySelector("canvas");
     const img = container.querySelector("img");
     let dataUrl = null;
-    if (canvas) {
-        dataUrl = canvas.toDataURL("image/png");
-    } else if (img && img.src) {
-        dataUrl = img.src;
-    }
-    if (!dataUrl) {
-        alert("QR download is not available in this browser.");
-        return;
-    }
+    if (canvas) dataUrl = canvas.toDataURL("image/png");
+    else if (img && img.src) dataUrl = img.src;
+    if (!dataUrl) return alert("QR download is not available.");
     const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    a.href = dataUrl; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
 }

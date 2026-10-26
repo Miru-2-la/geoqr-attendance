@@ -99,47 +99,31 @@ export async function renderAdminEvents(container) {
     });
 
     // --- Functions ---
-    
-        async function showQr(eventId) {
+            async function showQr(eventId) {
         qrBox.innerHTML = "Generating secure token...";
         qrActions.classList.add("hidden");
-
         try {
-            // 1. Fetch the secure token from Eshanika's backend
             const tokenData = await getQrToken(eventId);
-            
-            // 2. Render the QR code with the token
             qrBox.innerHTML = "";
-            renderQr(qrBox, eventId, tokenData.token || tokenData); 
+            renderQr(qrBox, eventId, tokenData.token);
             
             qrActions.innerHTML = "";
             qrActions.classList.remove("hidden");
-
             const downloadBtn = el("button", { className: "secondary", textContent: "Download QR" });
             downloadBtn.addEventListener("click", () => downloadQr(qrBox, `event-${eventId}-qr.png`));
-
-            const copyBtn = el("button", { className: "secondary", textContent: "Copy Event ID" });
-            copyBtn.addEventListener("click", async () => {
-                try {
-                    await navigator.clipboard.writeText(String(eventId));
-                    showToast("Event ID copied.", "success");
-                } catch {
-                    showToast("Clipboard not available.", "warning");
-                }
-            });
-
-            const liveBtn = el("a", { href: "#/admin/live-attendance" }, [
-                el("button", { className: "secondary", textContent: "Live Attendance" })
-            ]);
-
             qrActions.appendChild(downloadBtn);
-            qrActions.appendChild(copyBtn);
-            qrActions.appendChild(liveBtn);
-
         } catch (err) {
             qrBox.innerHTML = "";
-            showToast("Failed to generate secure QR. Make sure backend is running.", "error");
+            showToast(`QR Error: ${err.message}`, "error");
         }
+        
+        const liveBtn = el("a", { href: "#/admin/live-attendance" }, [
+            el("button", { className: "secondary", textContent: "Live Attendance" })
+        ]);
+
+        qrActions.appendChild(downloadBtn);
+        qrActions.appendChild(copyBtn);
+        qrActions.appendChild(liveBtn);
     }
     async function loadEvents() {
         eventsBox.innerHTML = "";

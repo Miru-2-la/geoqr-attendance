@@ -1,13 +1,24 @@
 package com.geoqr.attendance.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.geoqr.attendance.dto.ApiResponse;
 import com.geoqr.attendance.dto.ScanRequest;
 import com.geoqr.attendance.model.Attendance;
+import com.geoqr.attendance.security.AuthPrincipal;
 import com.geoqr.attendance.service.AttendanceService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -21,11 +32,12 @@ public class AttendanceController {
     }
 
     @PostMapping("/scan")
-    public ResponseEntity<ApiResponse<Attendance>> markAttendance(
-            @RequestBody ScanRequest request) {
-        Attendance attendance = attendanceService.processAttendance(request);
-        return ResponseEntity.ok(ApiResponse.success(
-                "Attendance marked successfully", attendance));
+    public ResponseEntity<ApiResponse<Attendance>> scan(
+            @Valid @RequestBody ScanRequest req, 
+            @AuthenticationPrincipal AuthPrincipal me) {
+        
+        return ResponseEntity.ok(ApiResponse.success("Success", 
+                attendanceService.processAttendance(me.id(), req)));
     }
 
     @GetMapping("/attendance/event/{eventId}")
